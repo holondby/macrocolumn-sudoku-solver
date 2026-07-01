@@ -29,7 +29,7 @@ macrocolumn-sudoku-solver/
 │
 ├── scripts/
 │   ├── run_macrocolumn_solver.py
-│   ├── descriotive_statistics.py
+│   ├── descriptive_statistics.py
 │   ├── Wilcoxon_signed_rank_test.py
 │   └── overlay_line_plot.py
 │
