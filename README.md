@@ -24,16 +24,14 @@ macrocolumn-sudoku-solver/
 ├── MANIFEST.md
 │
 ├── src/
-│   ├── macrocolumn_solver.py
-│   ├── model.py
-│   ├── sudoku_utils.py
-│   └── statistics_utils.py
+│   ├── __init__.py
+│   └── macrocolumn_solver.py
 │
 ├── scripts/
-│   ├── run_training.py
-│   ├── run_test_evaluation.py
-│   ├── reproduce_tables.py
-│   └── reproduce_figures.py
+│   ├── run_macrocolumn_solver.py
+│   ├── descriotive_statistics.py
+│   ├── Wilcoxon_signed_rank_test.py
+│   └── overlay_line_plot.py
 │
 ├── data/
 │   ├── puzzles/
