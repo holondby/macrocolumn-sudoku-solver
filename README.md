@@ -150,6 +150,18 @@ This script regenerates the figure files from the raw or processed result files.
 
 ---
 
+## Optional Runtime Output Settings
+
+The solver includes optional display settings that control how much information is shown during a run.
+
+The `SHOW_PLOTS` parameter controls whether the initial and final Sudoku states are displayed. Setting `SHOW_PLOTS = True` displays these Sudoku states, while setting `SHOW_PLOTS = False` suppresses this visual output.
+
+The `SHOW_PATH` parameter controls whether the solution path and associated performance counts are displayed. Setting `SHOW_PATH = True` prints this additional run information, while setting `SHOW_PATH = False` suppresses it.
+
+These settings affect only the amount of displayed output. They do not change the learning procedure, puzzle selection, train/test split, learned model state, or computed performance measures.
+
+---
+
 ## Data
 
 Sudoku puzzle data are stored in:
@@ -157,6 +169,7 @@ Sudoku puzzle data are stored in:
 ```text
 data/puzzles/
 ```
+
 
 The train/test split is stored in:
 
