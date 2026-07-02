@@ -63,6 +63,8 @@ The `raw_outputs/test_set/` directory contains output files from held-out test-s
 
 ## Notes on Reproducibility
 
+For practical convenience, learning runs were conducted in consecutive 10-trial increments rather than as a single uninterrupted run. Thus, saved output files correspond to trial blocks such as 1–10, 11–20, 21–30, and so on, up to the total number of trials used in a given experiment. These blocks should be interpreted as successive stages of the same learning procedure, not as independent 10-trial experiments. The learned model state was carried forward from one block to the next, so later blocks reflect continued learning from the earlier blocks.
+
 The data files in this directory should be used together with the source code, scripts, and reproducibility notes provided elsewhere in the repository.
 
 To reproduce the manuscript results, use the fixed puzzle files and train-test split supplied here. Do not reshuffle or replace the puzzle files unless conducting a new analysis not intended to reproduce the reported manuscript results.
