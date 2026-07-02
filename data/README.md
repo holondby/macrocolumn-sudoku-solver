@@ -45,7 +45,7 @@ The held-out test set was used with learning disabled and exploration set to zer
 
 ## Stress-Test Puzzles
 
-The `puzzles/stress_tests/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments. These include the AI Escargot and Everest puzzles.
+The `puzzles/stress_tests/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, specifically Inkala's AI Escargot and Everest puzzles.
 
 These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials, with performance assessed primarily by backtrack count.
 
