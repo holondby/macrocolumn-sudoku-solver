@@ -34,7 +34,11 @@ macrocolumn-sudoku-solver/
 │   └── overlay_line_plot.py
 │
 ├── data/
+│   ├── README.md
 │   ├── puzzles/
+│   │   ├── train/
+│   │   ├── test/
+│   │   └── stress_tests/
 │   └── train_test_split/
 │
 ├── results/
@@ -82,24 +86,20 @@ The repository contains material for the following analyses reported in the manu
 
 ## Software Requirements
 
-The code is written in Python.
+The code is written in Python. The programs were originally developed and run in an Anaconda Jupyter environment, but the final repository version has been converted to standard Python `.py` files for reproducibility and command-line execution.
 
-Recommended setup:
+The solver and analysis scripts require several external Python packages, including NumPy, pandas, SciPy, matplotlib, and TensorFlow.
+
+A recommended setup is to create a dedicated conda environment for the repository:
 
 ```bash
-python -m venv .venv
+conda create -n macrocolumn-sudoku python=3.10
 ```
 
-On Windows:
+Activate the environment with:
 
 ```bash
-.venv\Scripts\activate
-```
-
-On macOS/Linux:
-
-```bash
-source .venv/bin/activate
+conda activate macrocolumn-sudoku
 ```
 
 Install the required packages with:
@@ -108,45 +108,49 @@ Install the required packages with:
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` file should contain the Python packages needed to run the solver and reproduce the analyses, such as NumPy, pandas, SciPy, matplotlib, and TensorFlow.
+The `requirements.txt` file lists the Python packages needed to run the solver and reproduce the analyses.
+
+Jupyter Notebook or JupyterLab is not required to run the final `.py` files. If the code is opened or tested in Jupyter, Jupyter should be launched from within the activated conda environment so that it uses the same installed packages.
 
 ---
 
 ## Reproducing the Main Analyses
 
-From the top-level repository folder, run the following commands.
+From the top-level repository folder, run the relevant scripts below.
 
-### 1. Run training
-
-```bash
-python scripts/run_training.py
-```
-
-This script trains the macrocolumn Sudoku solver on the training puzzle set.
-
-### 2. Run held-out test evaluation
+### 1. Run the macrocolumn solver
 
 ```bash
-python scripts/run_test_evaluation.py
+python scripts/run_macrocolumn_solver.py
 ```
 
-This script evaluates saved trained models on the held-out test puzzle set with learning disabled and exploration set to zero.
+This script runs the macrocolumn Sudoku solver using the selected puzzle directory, learning parameters, and output settings specified in the program. The same solver script can be used for training-set runs, stress-test learning-rate comparisons, and held-out test-set evaluations by using the appropriate input files and parameter settings.
 
-### 3. Reproduce statistical tables
+For held-out test-set evaluation, learning should be disabled and exploration should be set to zero so that performance reflects the learned model state rather than continued training or random exploration.
+
+### 2. Generate descriptive statistics
 
 ```bash
-python scripts/reproduce_tables.py
+python scripts/descriptive_statistics.py
 ```
 
-This script regenerates the descriptive and inferential statistical summaries reported in the manuscript.
+This script computes descriptive statistical summaries from the relevant raw output files.
 
-### 4. Reproduce figures
+### 3. Run Wilcoxon signed-rank analyses
 
 ```bash
-python scripts/reproduce_figures.py
+python scripts/Wilcoxon_signed_rank_test.py
 ```
 
-This script regenerates the figure files from the raw or processed result files.
+This script performs the Wilcoxon signed-rank analyses used in the manuscript.
+
+### 4. Generate overlay line plots
+
+```bash
+python scripts/overlay_line_plot.py
+```
+
+This script generates overlay line plots from the relevant output files.
 
 ---
 
@@ -170,16 +174,21 @@ Sudoku puzzle data are stored in:
 data/puzzles/
 ```
 
-
 The train/test split is stored in:
 
 ```text
 data/train_test_split/
 ```
 
+Additional information about the data files is provided in:
+
+```text
+data/README.md
+```
+
 The manuscript uses a 100-puzzle dataset. Forced-solution puzzles, defined by maximum selected domain size equal to 1, are identified separately because they contain no non-forced branching decisions. The held-out test set consists of 25 puzzles sampled from puzzles requiring non-forced branching decisions. The remaining puzzles are used for training.
 
-The two difficult Sudoku stress-test puzzles, AI Escargot and Everest, are included for the learning-rate comparison.
+The `data/puzzles/stress_tests/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, namely Inkala’s AI Escargot and Everest puzzles. These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials, with performance assessed primarily by backtrack count.
 
 ---
 
@@ -210,6 +219,8 @@ The raw outputs include backtrack counts, contradiction counts, maximum selected
 ## Random Seeds and Reproducibility
 
 The experiments use fixed random-seed settings where applicable. The manuscript evaluates a fixed train/test split and fixed experimental configuration. Because neural-network training and numerical libraries may differ across systems, exact numerical reproduction may depend on the Python version, package versions, hardware, and TensorFlow configuration.
+
+For practical convenience, some learning runs were conducted in consecutive 10-trial increments rather than as a single uninterrupted run. Thus, saved output files may correspond to trial blocks such as 1–10, 11–20, 21–30, and so on, up to the total number of trials used in a given experiment. These blocks should be interpreted as successive stages of the same learning procedure, not as independent 10-trial experiments. The learned model state was carried forward from one block to the next, so later blocks reflect continued learning from the earlier blocks.
 
 For the archived journal-submission version, the intended reproduction target is the set of reported statistical summaries, raw outputs, tables, and figures associated with the released repository version.
 
@@ -278,3 +289,4 @@ Email: [holondby@gmail.com](mailto:holondby@gmail.com)
 This repository is intended to provide the implementation and supporting materials needed to inspect and reproduce the analyses reported in the manuscript. The repository includes the solver implementation, experimental scripts, data files, raw outputs, and table/figure generation files.
 
 The manuscript itself should be cited separately from this repository. This repository provides the supporting software, data, and reproducibility materials associated with the manuscript.
+
