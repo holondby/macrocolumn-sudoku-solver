@@ -32,14 +32,13 @@ macrocolumn-sudoku-solver/
 │   └── reproduce_wilcoxon_tests.py
 │
 ├── data/
-│   ├── puzzles/
-│   ├── train/
-│   ├── test/
-│   └── train_test_split/
+│   ├── Inkala_puzzles/
+│   ├── training_data/
+│   └── test_data/
 │
 ├── results/
 │   ├── raw_outputs/
-│   ├── processed_tables/
+│   ├── tables/
 │   └── figures/
 │
 └── docs/
@@ -105,23 +104,16 @@ Example:
 
 The solver loads all valid 9 × 9 puzzle files from the directory specified by the user.
 
-The main dataset contains 100 puzzles. A fixed 75-puzzle training set and 25-puzzle held-out test set are stored separately in:
+The main dataset contains 100 puzzles. The fixed 75-puzzle training set and 25-puzzle held-out test set are stored separately in:
 
-```text
-data/train/
-data/test/
-```
-
-The fixed split is also documented in:
-
-```text
-data/train_test_split/
-```
+data/training_data/
+data/test_data/
 
 Seventeen puzzles with maximum selected domain size equal to 1 were excluded from the held-out test candidate set because they require no non-forced branching decision. They remain available to the training procedure.
 
-The separate learning-rate stress tests use AI Escargot and Everest.
+The learning-rate stress-test puzzles, AI Escargot and Everest, are stored in:
 
+data/Inkala_puzzles/
 ---
 
 ## 4. Solver Configuration
@@ -185,7 +177,8 @@ to evaluate the current model without learning or exploration.
 
 Entering a positive number starts training. The program then requests the learning rate.
 
-For large experimental runs, the solver display settings are:
+For the reported experimental runs, the solver display settings were:
+
 
 ```text
 SHOW_PLOT = False
@@ -199,8 +192,9 @@ Move attempts
 Maximum selected domain size
 Contradiction count
 Backtrack count
-Solved/failed status
 ```
+
+If no solution is found, the program reports "No solution found."
 
 Backtrack count is the principal search-efficiency measure used in the manuscript.
 
@@ -210,7 +204,7 @@ The solver prints results to the console. Archived raw-result files were created
 
 ## 6. Checkpoints
 
-The solver saves Keras checkpoints using filenames of the form:
+A checkpoint is saved after each completed training trial. The solver saves checkpoints using Keras files of the form:
 
 ```text
 macrocolumn_model (1).keras
@@ -219,15 +213,14 @@ macrocolumn_model (3).keras
 ...
 ```
 
-A checkpoint is saved after each completed training trial.
-
-When the solver starts, it automatically loads the highest-numbered matching checkpoint in the current working directory. If no checkpoint is present, a new model is created.
-
+When the solver starts, it automatically loads the highest-numbered matching checkpoint in the current working directory.
 Therefore:
 
 * remove or relocate existing checkpoints before generating the untrained trial-0 baseline;
 * retain the latest checkpoint when continuing training;
 * isolate the intended checkpoint when evaluating a particular training trial.
+
+If no checkpoint is present, a new model is created.
 
 Separate working directories may be used to keep checkpoints from different experimental conditions independent.
 
@@ -263,7 +256,7 @@ The prior-experience experiment uses the fixed 75-puzzle training set and 25-puz
 The model is trained on:
 
 ```text
-data/train/
+data/training_data/
 ```
 
 using:
@@ -272,12 +265,27 @@ using:
 learning rate = 0.0001
 ```
 
-The untrained trial-0 baseline is obtained from a newly initialized model.
-
-Saved training checkpoints are evaluated on:
+Training continues for 100 trials. Saved checkpoints are evaluated at:
 
 ```text
-data/test/
+trial 10
+trial 20
+trial 30
+trial 40
+trial 50
+trial 60
+trial 70
+trial 80
+trial 90
+trial 100
+```
+
+The untrained trial-0 baseline is obtained from a newly initialized model.
+
+Each saved checkpoint is evaluated on:
+
+```text
+data/test_data/
 ```
 
 with:
@@ -289,7 +297,7 @@ exploration disabled
 epsilon = 0
 ```
 
-The held-out test analysis compares trial-0 backtrack counts with the corresponding counts obtained from trained checkpoints.
+The held-out test analysis compares trial-0 backtrack counts with the corresponding counts obtained from each trained checkpoint.
 
 The test set is used to assess whether training improves search guidance on puzzles not encountered during training.
 
@@ -360,7 +368,7 @@ results/raw_outputs/
 Processed statistical tables are stored in:
 
 ```text
-results/processed_tables/
+results/tables/
 ```
 
 Generated figures are stored in:
