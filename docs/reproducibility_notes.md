@@ -109,11 +109,8 @@ The main dataset contains 100 puzzles. The fixed 75-puzzle training set and 25-p
 data/training_data/
 data/test_data/
 
-Seventeen puzzles with maximum selected domain size equal to 1 were excluded from the held-out test candidate set because they require no non-forced branching decision. They remain available to the training procedure.
+Seventeen puzzles with maximum selected domain size equal to 1 were excluded from the held-out test candidate set because they require no non-forced branching decision. These puzzles were retained in the training set.
 
-The learning-rate stress-test puzzles, AI Escargot and Everest, are stored in:
-
-data/Inkala_puzzles/
 ---
 
 ## 4. Solver Configuration
@@ -141,9 +138,7 @@ EPSILON0 = 0.10
 L1_REG = 1e-6
 ```
 
-The solver propagates forced moves deterministically. At non-forced decision points, learned action values guide cell selection and digit ordering. Cell selection uses soft winner-take-all competition and divisive normalization. During training, only the first attempted digit is sampled from the fixed ε-greedy behavior policy.
-
-Learning uses potential-shaped TD(λ) backups over decision-to-decision search transitions.
+The solver uses deterministic forced-move propagation, learned soft winner-take-all/divisive-normalization cell selection, fixed ε-greedy exploration during training, and potential-shaped TD(λ) learning.
 
 ---
 
@@ -198,7 +193,7 @@ If no solution is found, the program reports "No solution found."
 
 Backtrack count is the principal search-efficiency measure used in the manuscript.
 
-The solver prints results to the console. Archived raw-result files were created by recording and organizing the reported output. The corresponding files are identified in `MANIFEST.md`.
+The solver prints results to the console. The archived result files were manually prepared from the reported console output. The corresponding files are identified in `MANIFEST.md`.
 
 ---
 
@@ -265,7 +260,7 @@ using:
 learning rate = 0.0001
 ```
 
-Training continues for 100 trials. Saved checkpoints are evaluated at:
+Training continues for 100 trials. The solver shuffles the training-puzzle order after each completed trial using the seeded random-number generator. Saved checkpoints are evaluated at:
 
 ```text
 trial 10
@@ -305,9 +300,7 @@ The test set is used to assess whether training improves search guidance on puzz
 
 ## 9. Statistical Analysis
 
-The analysis programs generate the descriptive and inferential statistics reported in the manuscript.
-
-Descriptive statistics include:
+The analysis programs generate the descriptive and inferential statistics reported in the manuscript. The reported summary statistics and normality-test results are:
 
 ```text
 minimum
@@ -347,41 +340,11 @@ Paired comparisons use Wilcoxon signed-rank tests. Holm-Bonferroni adjustment is
 
 Because successive observations within a learning trajectory are serially dependent, the stress-test inferential results are interpreted as exploratory.
 
----
-
-## 10. Reproducing the Analyses
-
-After the experimental output has been recorded and organized, run:
-
-```text
-python scripts/reproduce_descriptive_statistics.py
-python scripts/reproduce_wilcoxon_tests.py
-python scripts/reproduce_learning_rate_plots.py
-```
-
-Raw experimental output is stored in:
-
-```text
-results/raw_outputs/
-```
-
-Processed statistical tables are stored in:
-
-```text
-results/tables/
-```
-
-Generated figures are stored in:
-
-```text
-results/figures/
-```
-
-See `MANIFEST.md` for the correspondence between archived files and manuscript tables and figures.
+The analysis programs, input files, processed tables, and generated figures used for the manuscript are identified in `MANIFEST.md`.
 
 ---
 
-## 11. Numerical Reproducibility
+## 10. Numerical Reproducibility
 
 A fixed random seed is used for Python, NumPy, and TensorFlow where possible. Exact numerical results may nevertheless vary across operating systems, TensorFlow versions, hardware, and CPU/GPU numerical implementations.
 
