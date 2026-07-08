@@ -1,65 +1,16 @@
 # Reproducibility Notes
 
-This document describes how to reproduce the computational procedures and reported analyses for the manuscript:
+This document describes how to reproduce the computational procedures and analyses reported in:
 
-**Learning to Search with a Simulated Cortical Macrocolumn**
+**David Yeo, “Learning to Search with a Simulated Cortical Macrocolumn.”**
 
-The repository contains the source code, Sudoku puzzle datasets, train/test split information, experiment scripts, raw output files, statistical analysis scripts, and figure-generation scripts used to support the results reported in the manuscript.
+The repository contains the solver, Sudoku datasets, fixed train/test split, analysis programs, archived outputs, and generated tables and figures used in the manuscript.
 
-## 1. Purpose of the Repository
+---
 
-This repository is intended to make the computational work reported in the manuscript inspectable and reproducible. It provides:
+## 1. Repository Structure
 
-* the macrocolumn reinforcement-learning Sudoku solver;
-* the Sudoku puzzle datasets used in the experiments;
-* the training and held-out test split;
-* scripts used to run the solver;
-* scripts used to generate descriptive statistics;
-* scripts used to perform Wilcoxon signed-rank tests and related corrections;
-* scripts used to generate the learning-rate comparison line plots;
-* raw or processed output files used to produce the manuscript tables and figures.
-
-The main purpose of the archive is to allow reviewers and readers to trace the reported results back to the program, data, and analysis files from which they were generated.
-
-## 2. Software Requirements
-
-The code is written in Python. The main solver uses TensorFlow/Keras and NumPy. The analysis scripts use common scientific Python packages.
-
-A typical environment requires:
-
-```text
-python
-numpy
-tensorflow
-pandas
-scipy
-matplotlib
-```
-
-The package list should be recorded in:
-
-```text
-requirements.txt
-```
-
-A typical Windows setup is:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-On macOS or Linux, the virtual environment is usually activated with:
-
-```bash
-source .venv/bin/activate
-```
-
-## 3. Repository Layout
-
-The intended repository structure is:
+The main repository directories are:
 
 ```text
 macrocolumn-sudoku-solver/
@@ -95,77 +46,48 @@ macrocolumn-sudoku-solver/
     └── reproducibility_notes.md
 ```
 
-The main solver implementation is stored in:
+The main solver is:
 
 ```text
 src/macrocolumn_solver.py
 ```
 
-The command-line wrapper used to run the solver from the repository root is stored in:
+`MANIFEST.md` identifies the archived files corresponding to the manuscript results.
+
+---
+
+## 2. Software Environment
+
+The code is written in Python and uses NumPy, TensorFlow/Keras, pandas, SciPy, and Matplotlib.
+
+Install the required packages from:
 
 ```text
-scripts/run_macrocolumn_solver.py
+requirements.txt
 ```
 
-## 4. Main Solver
-
-The main solver is a macrocolumn reinforcement-learning Sudoku solver embedded in depth-first search.
-
-The solver:
-
-* propagates forced Sudoku moves deterministically;
-* uses learned action values to guide non-forced branching decisions;
-* selects non-forced cells using soft winner-take-all competition and divisive normalization;
-* orders admissible digits by estimated Q-value;
-* samples only the first attempted digit during training from a fixed ε-greedy behavior policy;
-* updates Q-values using potential-shaped TD(λ) learning;
-* reports move attempts, maximum selected domain size, contradiction count, and backtrack count.
-
-The principal implementation file is:
+A typical Windows setup is:
 
 ```text
-src/macrocolumn_solver.py
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-To run the solver from the repository root:
-
-```bash
-python scripts/run_macrocolumn_solver.py
-```
-
-The program prompts for the puzzle directory:
+On macOS or Linux, activate the environment with:
 
 ```text
-Puzzle directory:
+source .venv/bin/activate
 ```
 
-It then prompts for the number of trials:
+For the closest numerical reproduction, use the Python and package versions recorded in the repository.
 
-```text
-Enter the number of trials (0 to test & exit):
-```
+---
 
-Use:
+## 3. Sudoku Data
 
-```text
-0
-```
-
-to run the solver in evaluation mode without learning.
-
-Use a positive integer to run training. If training is selected, the program also prompts for the learning rate.
-
-## 5. Sudoku Puzzle Format
-
-Each Sudoku puzzle is stored as a plain text file containing a 9 × 9 grid of integers.
-
-Use:
-
-```text
-0
-```
-
-for blank cells.
+Each Sudoku puzzle is a plain-text 9 × 9 grid of integers. Zero represents a blank cell.
 
 Example:
 
@@ -181,76 +103,43 @@ Example:
 0 0 5 0 1 0 3 0 0
 ```
 
-The solver loads all valid 9 × 9 numeric text files from the directory supplied by the user.
+The solver loads all valid 9 × 9 puzzle files from the directory specified by the user.
 
-## 6. Dataset Construction
-
-The experimental dataset contained 100 Sudoku puzzles. The puzzles were drawn from newspaper and public-domain sources and ranged from easy to hard difficulty levels.
-
-Two widely cited difficult Sudoku puzzles were also used as stress-test cases for learning-rate comparisons:
-
-```text
-AI Escargot
-Everest
-```
-
-The paper reports that 17 of the 100 puzzles were forced-solution puzzles with maximum selected domain size equal to 1. These puzzles required no non-forced branching decision and therefore produced zero backtracks.
-
-The forced-solution puzzles reported in the manuscript were:
-
-```text
-001
-004
-012
-015
-027
-039
-042
-048
-049
-051
-072
-077
-085
-088
-089
-092
-093
-```
-
-The prior-experience experiment used a 75/25 train-test split. The 25-puzzle test set was sampled only from puzzles with maximum selected domain size greater than 1, because forced-solution puzzles provide no opportunity to assess learned branching guidance.
-
-The training and test directories should be preserved as separate folders, for example:
+The main dataset contains 100 puzzles. A fixed 75-puzzle training set and 25-puzzle held-out test set are stored separately in:
 
 ```text
 data/train/
 data/test/
 ```
 
-The exact split should also be recorded in:
+The fixed split is also documented in:
 
 ```text
 data/train_test_split/
 ```
 
-## 7. Main Experimental Parameters
+Seventeen puzzles with maximum selected domain size equal to 1 were excluded from the held-out test candidate set because they require no non-forced branching decision. They remain available to the training procedure.
 
-The implemented macrocolumn model used seven competing minicolumns.
+The separate learning-rate stress tests use AI Escargot and Everest.
 
-Each minicolumn contained:
+---
+
+## 4. Solver Configuration
+
+The fixed random seed is:
+
+```text
+SEED = 121252
+```
+
+The implemented macrocolumn contains seven competing minicolumns. Each minicolumn contains:
 
 ```text
 1 LSTM layer with 10 units
 3 Dense layers with 30 ReLU units each
 ```
 
-The resulting minicolumn capacity score was:
-
-```text
-10 + 3 × 30 = 100
-```
-
-The principal reinforcement-learning parameters were:
+The principal learning parameters are:
 
 ```text
 GAMMA = 0.99
@@ -260,44 +149,68 @@ EPSILON0 = 0.10
 L1_REG = 1e-6
 ```
 
-The fixed random seed used in the solver was:
+The solver propagates forced moves deterministically. At non-forced decision points, learned action values guide cell selection and digit ordering. Cell selection uses soft winner-take-all competition and divisive normalization. During training, only the first attempted digit is sampled from the fixed ε-greedy behavior policy.
+
+Learning uses potential-shaped TD(λ) backups over decision-to-decision search transitions.
+
+---
+
+## 5. Running the Solver
+
+From the repository root, run:
 
 ```text
-121252
+python scripts/run_macrocolumn_solver.py
 ```
 
-This seed is applied to Python, NumPy, and TensorFlow where possible.
+The program first requests the puzzle directory:
 
-## 8. Solver Output Metrics
+```text
+Puzzle directory:
+```
 
-For each puzzle, the solver reports four main metrics:
+It then requests the number of trials:
+
+```text
+Enter the number of trials (0 to test & exit):
+```
+
+Enter:
+
+```text
+0
+```
+
+to evaluate the current model without learning or exploration.
+
+Entering a positive number starts training. The program then requests the learning rate.
+
+For large experimental runs, the solver display settings are:
+
+```text
+SHOW_PLOT = False
+SHOW_MOVES = False
+```
+
+For each puzzle, the solver reports:
 
 ```text
 Move attempts
 Maximum selected domain size
 Contradiction count
 Backtrack count
+Solved/failed status
 ```
 
-Backtrack count is the primary outcome measure in the manuscript because it directly measures wrong-path search effort that must later be undone.
+Backtrack count is the principal search-efficiency measure used in the manuscript.
 
-The manuscript also uses the accounting relationship:
+The solver prints results to the console. Archived raw-result files were created by recording and organizing the reported output. The corresponding files are identified in `MANIFEST.md`.
 
-```text
-initial blank cells = move attempts - backtrack count
-```
+---
 
-after successful solution of a puzzle.
+## 6. Checkpoints
 
-## 9. Checkpoint Notes
-
-The solver saves Keras checkpoints using the prefix:
-
-```text
-macrocolumn_model
-```
-
-Checkpoint files are named in the form:
+The solver saves Keras checkpoints using filenames of the form:
 
 ```text
 macrocolumn_model (1).keras
@@ -306,22 +219,23 @@ macrocolumn_model (3).keras
 ...
 ```
 
-When the solver starts, it attempts to load the most recent checkpoint in the current working directory.
+A checkpoint is saved after each completed training trial.
 
-For a clean trial-0 baseline, remove or relocate previous checkpoint files before running the baseline evaluation.
+When the solver starts, it automatically loads the highest-numbered matching checkpoint in the current working directory. If no checkpoint is present, a new model is created.
 
-For trained evaluations, use the checkpoint corresponding to the desired training trial.
+Therefore:
 
-## 10. Reproducing the Learning-Rate Comparison
+* remove or relocate existing checkpoints before generating the untrained trial-0 baseline;
+* retain the latest checkpoint when continuing training;
+* isolate the intended checkpoint when evaluating a particular training trial.
 
-The learning-rate comparison was performed on the two Inkala stress-test puzzles:
+Separate working directories may be used to keep checkpoints from different experimental conditions independent.
 
-```text
-AI Escargot
-Everest
-```
+---
 
-The learning rates compared were:
+## 7. Learning-Rate Stress Tests
+
+AI Escargot and Everest were each evaluated for 50 training trials at:
 
 ```text
 0.01
@@ -329,197 +243,141 @@ The learning rates compared were:
 0.0001
 ```
 
-Performance was assessed across the first 50 learning trials, excluding trial 0 from the descriptive and paired-comparison summaries.
+Each learning-rate condition should begin from the intended initial model state and should not reuse a checkpoint generated under another learning rate.
 
-The line plots reported as Figures 5 and 6 can be reproduced with:
+The recorded backtrack counts are used to generate:
 
-```bash
-python scripts/reproduce_learning_rate_plots.py
-```
+* descriptive statistics and Shapiro-Wilk tests;
+* Friedman learning-rate comparisons;
+* pairwise Wilcoxon signed-rank tests with Holm-Bonferroni adjustment;
+* learning-rate comparison plots.
 
-The descriptive statistics reported for the learning-rate comparison can be reproduced with:
+The relevant raw outputs, processed tables, and figures are identified in `MANIFEST.md`.
 
-```bash
-python scripts/reproduce_descriptive_statistics.py
-```
+---
 
-The Wilcoxon paired signed-rank comparisons can be reproduced with:
+## 8. Train/Test Experiment
 
-```bash
-python scripts/reproduce_wilcoxon_tests.py
-```
+The prior-experience experiment uses the fixed 75-puzzle training set and 25-puzzle held-out test set.
 
-The output files used for these analyses should be stored in:
+The model is trained on:
 
 ```text
-results/raw_outputs/
+data/train/
 ```
 
-Generated plots should be stored in:
-
-```text
-results/figures/
-```
-
-Processed statistical tables should be stored in:
-
-```text
-results/processed_tables/
-```
-
-## 11. Reproducing the Prior-Experience Experiment
-
-The prior-experience experiment used the 75-puzzle training set and the 25-puzzle held-out test set.
-
-The model was trained on the 75 training puzzles using:
+using:
 
 ```text
 learning rate = 0.0001
 ```
 
-Training-set performance was evaluated at:
+The untrained trial-0 baseline is obtained from a newly initialized model.
+
+Saved training checkpoints are evaluated on:
 
 ```text
-trial 0
-trial 10
-trial 20
-trial 30
-trial 40
-trial 50
+data/test/
 ```
 
-Held-out test-set performance was evaluated with learning disabled and exploration set to zero. The trial-0 baseline was obtained from a newly initialized model before training. Trained evaluations were obtained by loading the appropriate saved checkpoint.
+with:
 
-The purpose of the test-set analysis was to determine whether the learned Q-values improved search guidance on novel puzzles, rather than merely improving performance on puzzles encountered during training.
+```text
+trials = 0
+learning disabled
+exploration disabled
+epsilon = 0
+```
 
-## 12. Reproducing Descriptive Statistics
+The held-out test analysis compares trial-0 backtrack counts with the corresponding counts obtained from trained checkpoints.
 
-The descriptive statistics scripts should compute, where applicable:
+The test set is used to assess whether training improves search guidance on puzzles not encountered during training.
+
+---
+
+## 9. Statistical Analysis
+
+The analysis programs generate the descriptive and inferential statistics reported in the manuscript.
+
+Descriptive statistics include:
 
 ```text
 minimum
 maximum
 mean
 median
-standard deviation
+population standard deviation
 median absolute deviation
 Shapiro-Wilk W
 Shapiro-Wilk p-value
 ```
 
-The descriptive statistics reported in the manuscript include:
+The population standard deviation is computed with:
 
 ```text
-Table 2: AI Escargot descriptive statistics
-Table 3: Everest descriptive statistics
-Table 7: training-set descriptive statistics
-Table 9: test-set descriptive statistics
+ddof = 0
 ```
 
-To run the descriptive statistics script:
-
-```bash
-python scripts/reproduce_descriptive_statistics.py
-```
-
-## 13. Reproducing Wilcoxon Tests
-
-Because the backtrack-count distributions were non-normal, the manuscript used Wilcoxon signed-rank tests for paired comparisons.
-
-The Wilcoxon analysis was used for:
+The median absolute deviation is computed with:
 
 ```text
-learning-rate comparisons
-training-set trial-0 versus later trial comparisons
-test-set trial-0 versus later trial comparisons
+scipy.stats.median_abs_deviation(..., scale="normal")
 ```
 
-Where multiple paired comparisons were made, Holm-Bonferroni correction was applied.
-
-The Wilcoxon-related tables reported in the manuscript include:
+For learning-rate analyses, the manually prepared input TXT file contains:
 
 ```text
-Table 5: AI Escargot learning-rate comparisons
-Table 6: Everest learning-rate comparisons
-Table 8: training-set Wilcoxon comparisons
-Table 10: test-set Wilcoxon comparisons
+column 0: trial number
+column 1: backtrack counts for learning rate 0.01
+column 2: backtrack counts for learning rate 0.001
+column 3: backtrack counts for learning rate 0.0001
 ```
 
-To run the Wilcoxon analysis script:
+Column 0 identifies the trial and is not interpreted as an experimental outcome. Reported descriptive statistics are therefore based on columns 1–3.
 
-```bash
-python scripts/reproduce_wilcoxon_tests.py
-```
+Paired comparisons use Wilcoxon signed-rank tests. Holm-Bonferroni adjustment is applied where multiple paired comparisons are performed. Friedman tests are used for the omnibus stress-test learning-rate comparisons.
 
-## 14. Notes on Statistical Interpretation
+Because successive observations within a learning trajectory are serially dependent, the stress-test inferential results are interpreted as exploratory.
 
-The learning-rate comparisons are exploratory because the observations within each learning trajectory are serially dependent. The Friedman and Wilcoxon tests are therefore useful for summarizing learning-rate trajectories, but they should not be interpreted as fully independent confirmatory tests.
+---
 
-The held-out test-set results showed a trend toward reduced backtracking after training, particularly around trials 30 and 40, but the trend did not remain statistically significant after Holm-Bonferroni correction.
+## 10. Reproducing the Analyses
 
-The training-set results showed stronger evidence that the model acquired useful search guidance on puzzles encountered during training.
-
-## 15. Expected Sources of Variation
-
-The repository uses a fixed seed to improve reproducibility. However, exact numerical results may still vary across:
+After the experimental output has been recorded and organized, run:
 
 ```text
-operating systems
-Python versions
-TensorFlow versions
-CPU versus GPU execution
-hardware-specific numerical kernels
-minor package-version differences
-```
-
-For this reason, the repository includes raw output files and processed table-generation files so that the manuscript results can be traced directly to the archived outputs.
-
-## 16. Clean Reproduction Workflow
-
-A typical reproduction workflow is:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-Then run the solver:
-
-```bash
-python scripts/run_macrocolumn_solver.py
-```
-
-Then reproduce the analyses:
-
-```bash
 python scripts/reproduce_descriptive_statistics.py
 python scripts/reproduce_wilcoxon_tests.py
 python scripts/reproduce_learning_rate_plots.py
 ```
 
-The generated results should correspond to the files stored under:
+Raw experimental output is stored in:
 
 ```text
-results/
+results/raw_outputs/
 ```
 
-## 17. Notes for Reviewers
-
-The repository is intended to support transparent review of the implementation and analyses. The key reproducibility materials are:
+Processed statistical tables are stored in:
 
 ```text
-src/macrocolumn_solver.py
-data/
-results/
-scripts/
-requirements.txt
-README.md
-MANIFEST.md
-docs/reproducibility_notes.md
+results/processed_tables/
 ```
 
-The solver implementation, training/test split, raw backtrack-count outputs, statistical summaries, and plotting scripts together provide the computational basis for the reported Tables 1–10 and Figures 5–6.
+Generated figures are stored in:
 
-The results should be interpreted in the context stated in the manuscript: the solver demonstrates learned search guidance on training puzzles, while reliable generalization to novel puzzles remains an open question requiring additional experiments across repeated seeds, repeated train/test splits, larger puzzle sets, and additional constraint-satisfaction domains.
+```text
+results/figures/
+```
+
+See `MANIFEST.md` for the correspondence between archived files and manuscript tables and figures.
+
+---
+
+## 11. Numerical Reproducibility
+
+A fixed random seed is used for Python, NumPy, and TensorFlow where possible. Exact numerical results may nevertheless vary across operating systems, TensorFlow versions, hardware, and CPU/GPU numerical implementations.
+
+For the closest reproduction, use the archived software versions and the fixed data split and preserve the checkpoint procedure described above.
+
+The archived raw outputs and processed analysis files provide the direct computational basis for the manuscript results.
+
