@@ -21,7 +21,6 @@ macrocolumn-sudoku-solver/
 ├── CITATION.cff
 ├── LICENSE
 ├── requirements.txt
-├── MANIFEST.md
 │
 ├── src/
 │   ├── __init__.py
@@ -47,10 +46,6 @@ macrocolumn-sudoku-solver/
 └── docs/
     └── reproducibility_notes.md
 ```
-
-The exact file inventory is described in `MANIFEST.md`.
-
----
 
 ## Project Summary
 
