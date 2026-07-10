@@ -35,15 +35,13 @@ macrocolumn-sudoku-solver/
 │
 ├── data/
 │   ├── README.md
-│   ├── puzzles/
-│   │   ├── train/
-│   │   ├── test/
-│   │   └── stress_tests/
-│   └── train_test_split/
+│   ├── Inkala_data/
+│   ├── training_data/
+│   └── test_data/
 │
 ├── results/
 │   ├── raw_outputs/
-│   ├── processed_tables/
+│   ├── tables/
 │   └── figures/
 │
 └── docs/
@@ -171,13 +169,7 @@ These settings affect only the amount of displayed output. They do not change th
 Sudoku puzzle data are stored in:
 
 ```text
-data/puzzles/
-```
-
-The train/test split is stored in:
-
-```text
-data/train_test_split/
+data/
 ```
 
 Additional information about the data files is provided in:
@@ -188,7 +180,7 @@ data/README.md
 
 The manuscript uses a 100-puzzle dataset. Forced-solution puzzles, defined by maximum selected domain size equal to 1, are identified separately because they contain no non-forced branching decisions. The held-out test set consists of 25 puzzles sampled from puzzles requiring non-forced branching decisions. The remaining puzzles are used for training.
 
-The `data/puzzles/stress_tests/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, namely Inkala’s AI Escargot and Everest puzzles. These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials, with performance assessed primarily by backtrack count.
+The `data/Inkala_data/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, namely Inkala’s AI Escargot and Everest puzzles. These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials, with performance assessed primarily by backtrack count.
 
 ---
 
@@ -203,7 +195,7 @@ results/raw_outputs/
 Processed tables are stored in:
 
 ```text
-results/processed_tables/
+results/tables/
 ```
 
 Generated figures are stored in:
