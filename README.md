@@ -28,6 +28,7 @@ macrocolumn-sudoku-solver/
 │   └── macrocolumn_solver.py
 │
 ├── scripts/
+│   ├── run_macrocolumn_solver.py
 │   ├── descriptive_statistics.py
 │   ├── Wilcoxon_signed_rank_test.py
 │   └── overlay_line_plot.py
@@ -118,13 +119,12 @@ From the top-level repository folder, run the relevant programs below.
 ### 1. Run the macrocolumn solver
 
 ```bash
-python src/macrocolumn_solver.py
+python scripts/run_macrocolumn_solver.py
 ```
 
-The program runs the macrocolumn Sudoku solver using the puzzle directory and learning parameters selected for the run, together with the configured runtime output settings. The same solver can be used for training-set runs, learning-rate comparisons, and held-out test-set evaluations by selecting the appropriate puzzle directory and run parameters.
+This command-line wrapper launches the main macrocolumn Sudoku solver implemented in `src/macrocolumn_solver.py`. The solver uses the puzzle directory and learning parameters selected for the run, together with the configured runtime output settings. The same solver can be used for training-set runs, learning-rate comparisons, and held-out test-set evaluations by selecting the appropriate puzzle directory and run parameters.
 
 For held-out test-set evaluation, learning should be disabled and exploration should be set to zero so that performance reflects the learned model state rather than continued training or random exploration.
-
 
 ### 2. Generate descriptive statistics
 
