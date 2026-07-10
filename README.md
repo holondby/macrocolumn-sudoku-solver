@@ -28,7 +28,6 @@ macrocolumn-sudoku-solver/
 │   └── macrocolumn_solver.py
 │
 ├── scripts/
-│   ├── run_macrocolumn_solver.py
 │   ├── descriptive_statistics.py
 │   ├── Wilcoxon_signed_rank_test.py
 │   └── overlay_line_plot.py
@@ -36,8 +35,8 @@ macrocolumn-sudoku-solver/
 ├── data/
 │   ├── README.md
 │   ├── Inkala_data/
-│   ├── training_data/
-│   └── test_data/
+│   ├── Training_data/
+│   └── Test_data/
 │
 ├── results/
 │   ├── raw_outputs/
@@ -56,7 +55,7 @@ The exact file inventory is described in `MANIFEST.md`.
 
 The solver uses Sudoku as a compact constraint-satisfaction testbed for learned search guidance. The model combines:
 
-* a 9 × 9 × 9 action space representing possible cell-digit assignments;
+* an action space of 9 × 9 × 9 = 729 possible cell-digit assignments;
 * deterministic propagation of forced cells;
 * learned selection of non-forced branching cells;
 * greedy ordering of admissible digits by estimated action value;
@@ -114,17 +113,18 @@ Jupyter Notebook or JupyterLab is not required to run the final `.py` files. If 
 
 ## Reproducing the Main Analyses
 
-From the top-level repository folder, run the relevant scripts below.
+From the top-level repository folder, run the relevant programs below.
 
 ### 1. Run the macrocolumn solver
 
 ```bash
-python scripts/run_macrocolumn_solver.py
+python src/macrocolumn_solver.py
 ```
 
-This script runs the macrocolumn Sudoku solver using the selected puzzle directory, learning parameters, and output settings specified in the program. The same solver script can be used for training-set runs, stress-test learning-rate comparisons, and held-out test-set evaluations by using the appropriate input files and parameter settings.
+The program runs the macrocolumn Sudoku solver using the puzzle directory and learning parameters selected for the run, together with the configured runtime output settings. The same solver can be used for training-set runs, learning-rate comparisons, and held-out test-set evaluations by selecting the appropriate puzzle directory and run parameters.
 
 For held-out test-set evaluation, learning should be disabled and exploration should be set to zero so that performance reflects the learned model state rather than continued training or random exploration.
+
 
 ### 2. Generate descriptive statistics
 
@@ -132,7 +132,7 @@ For held-out test-set evaluation, learning should be disabled and exploration sh
 python scripts/descriptive_statistics.py
 ```
 
-This script computes descriptive statistical summaries from the relevant raw output files.
+This script computes descriptive statistical summaries from the relevant numerical result files prepared from the solver-reported counts.
 
 ### 3. Run Wilcoxon signed-rank analyses
 
@@ -178,7 +178,7 @@ Additional information about the data files is provided in:
 data/README.md
 ```
 
-The manuscript uses a 100-puzzle dataset. Forced-solution puzzles, defined by maximum selected domain size equal to 1, are identified separately because they contain no non-forced branching decisions. The held-out test set consists of 25 puzzles sampled from puzzles requiring non-forced branching decisions. The remaining puzzles are used for training.
+The manuscript uses a fixed 100-puzzle dataset partitioned into a 75-puzzle training set and a 25-puzzle held-out test set. Forced-solution puzzles, defined by maximum selected domain size equal to 1, are identified separately because they contain no non-forced branching decisions. The held-out test puzzles were selected from puzzles requiring non-forced branching decisions. The fixed training and test puzzle sets are stored in `data/Training_data/` and `data/Test_data/`, respectively.
 
 The `data/Inkala_data/` directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, namely Inkala’s AI Escargot and Everest puzzles. These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials, with performance assessed primarily by backtrack count.
 
@@ -204,7 +204,7 @@ Generated figures are stored in:
 results/figures/
 ```
 
-The raw outputs include backtrack counts, contradiction counts, maximum selected domain size values, and related performance measures used to generate the manuscript tables and figures.
+The raw output files preserve the solver-reported numerical results used to prepare the manuscript analyses, tables, and figures. Numerical analysis input files were prepared from the corresponding reported counts where required by the analysis programs.
 
 ---
 
@@ -261,8 +261,11 @@ Data and result files are provided to support transparency, review, and reproduc
 ## Author
 
 David Yeo
+
 Independent Researcher
+
 Peterborough, Ontario, Canada
+
 ORCID: https://orcid.org/0009-0008-1226-3189
 
 ---
@@ -272,6 +275,7 @@ ORCID: https://orcid.org/0009-0008-1226-3189
 For questions about the repository or the associated manuscript, contact:
 
 David Yeo
+
 Email: [holondby@gmail.com](mailto:holondby@gmail.com)
 
 ---
@@ -281,4 +285,3 @@ Email: [holondby@gmail.com](mailto:holondby@gmail.com)
 This repository is intended to provide the implementation and supporting materials needed to inspect and reproduce the analyses reported in the manuscript. The repository includes the solver implementation, experimental scripts, data files, raw outputs, and table/figure generation files.
 
 The manuscript itself should be cited separately from this repository. This repository provides the supporting software, data, and reproducibility materials associated with the manuscript.
-
