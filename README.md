@@ -41,10 +41,28 @@ macrocolumn-sudoku-solver/
 │   ├── training_data/
 │   └── test_data/
 │
-├── results/
-│   ├── analysis_inputs/
-│   ├── tables/
-│   └── figures/
+results/
+│
+├── analysis_inputs/
+│   ├── AI_Escargot_learning_rate_counts.txt
+│   ├── Everest_learning_rate_counts.txt
+│   └── test_set_checkpoint_backtrack_counts.txt
+│
+├── tables/
+│   ├── Table 1 - Forced_puzzles.txt
+│   ├── Table 2 - AI_Escargot_descriptive_statistics.txt
+│   ├── Table 3 - Everest_descriptive_statistics.txt
+│   ├── Table 4 - AI_Escargot_statistical_tests.txt
+│   ├── Table 5 - Everest_statistical_tests.txt
+│   ├── Table 6 - Everest_statistical_tests.txt
+│   ├── Table 7 - Everest_statistical_tests.txt
+│   ├── Table 8 - Everest_statistical_tests.txt
+│   ├── Table 9 - Everest_statistical_tests.txt
+│   └── Table 10 - test_set_checkpoint_statistical_tests.txt
+│
+└── figures/
+    ├── AI_Escargot_learning_rate_plot.png
+    └── Everest_learning_rate_plot.png
 │
 └── docs/
     └── reproducibility_notes.md
