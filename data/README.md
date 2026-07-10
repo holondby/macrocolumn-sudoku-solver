@@ -14,8 +14,8 @@ The data are organized as follows:
 data/
 ├── README.md
 ├── Inkala_data/
-├── Training_data/
-└── Test_data/
+├── training_data/
+└── test_data/
 ```
 
 ## Inkala_data/
@@ -24,23 +24,23 @@ The `Inkala_data/` directory contains the difficult Sudoku puzzles used in the l
 
 These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials. Performance was assessed primarily by backtrack count.
 
-## Training_data/
+## training_data/
 
-The `Training_data/` directory contains the fixed 75-puzzle training set used in the prior-experience experiment.
+The `training_data/` directory contains the fixed 75-puzzle training set used in the prior-experience experiment.
 
 During training, the directory is supplied to the solver as the puzzle-data directory. The solver trains across the puzzles in the directory and shuffles the puzzle order after each completed trial using the fixed seeded random-number procedure described in `reproducibility_notes.md`.
 
 Training continues for 100 trials using a learning rate of 0.0001. Model checkpoints are saved at the specified evaluation trials.
 
-## Test_data/
+## test_data/
 
-The `Test_data/` directory contains the fixed 25-puzzle held-out test set used to evaluate whether training improves search guidance on puzzles not encountered during training.
+The `test_data/` directory contains the fixed 25-puzzle held-out test set used to evaluate whether training improves search guidance on puzzles not encountered during training.
 
 The test puzzles are evaluated with learning disabled and exploration disabled (`epsilon = 0`). The untrained trial-0 baseline is obtained from a newly initialized model. Saved training checkpoints are then evaluated on the same fixed test set.
 
 The test set is not used for parameter updates during training.
 
-## Puzzle Files
+## puzzle Files
 
 Each Sudoku puzzle is stored as a plain-text file and supplied directly to the solver.
 
@@ -56,7 +56,7 @@ The training and test sets are implemented by placing the corresponding puzzle f
 
 Puzzle files use `0` to denote an empty Sudoku cell.
 
-## Notes on Reproducibility
+## notes on reproducibility
 
 The training and test puzzle sets supplied in this directory are the fixed datasets used for the reported prior-experience experiment. They should not be randomly repartitioned when reproducing the manuscript results.
 
