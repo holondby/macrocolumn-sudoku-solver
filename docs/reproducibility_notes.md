@@ -48,10 +48,6 @@ The main solver is:
 
 ```text
 src/macrocolumn_solver.py
-```
-
-`MANIFEST.md` identifies the archived files corresponding to the manuscript results.
-
 ---
 
 ## 2. Software Environment
@@ -192,8 +188,7 @@ If no solution is found, the program reports "No solution found."
 
 Backtrack count is the principal search-efficiency measure used in the manuscript.
 
-The solver prints results to the console. The archived result files were manually prepared from the reported console output. The corresponding files are identified in `MANIFEST.md`.
-
+The solver prints results to the console. The archived result files were manually prepared from the reported console output. 
 ---
 
 ## 6. Checkpoints
@@ -238,8 +233,6 @@ The recorded backtrack counts are used to generate:
 * Friedman learning-rate comparisons;
 * pairwise Wilcoxon signed-rank tests with Holm-Bonferroni adjustment;
 * learning-rate comparison plots.
-
-The relevant raw outputs, processed tables, and figures are identified in `MANIFEST.md`.
 
 ---
 
@@ -338,8 +331,6 @@ Column 0 identifies the trial and is not interpreted as an experimental outcome.
 Paired comparisons use Wilcoxon signed-rank tests. Holm-Bonferroni adjustment is applied where multiple paired comparisons are performed. Friedman tests are used for the omnibus stress-test learning-rate comparisons.
 
 Because successive observations within a learning trajectory are serially dependent, the stress-test inferential results are interpreted as exploratory.
-
-The analysis programs, input files, processed tables, and generated figures used for the manuscript are identified in `MANIFEST.md`.
 
 ---
 
