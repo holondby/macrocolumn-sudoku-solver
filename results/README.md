@@ -12,7 +12,7 @@ results/
 └── tables/
 ```
 
-## `input_analysis/`
+## `analysis_inputs/`
 
 This subdirectory contains the analysis-ready data files used by the statistical and plotting programs.
 
