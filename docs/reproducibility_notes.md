@@ -18,7 +18,6 @@ macrocolumn-sudoku-solver/
 ├── README.md
 ├── CITATION.cff
 ├── LICENSE
-├── MANIFEST.md
 ├── requirements.txt
 │
 ├── src/
