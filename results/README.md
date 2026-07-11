@@ -14,25 +14,28 @@ results/
 
 ## `input_analysis/`
 
-This subdirectory contains the analysis-ready input files used by the statistical and plotting programs.
+This subdirectory contains the analysis-ready data files used by the statistical and plotting programs.
 
-These files are prepared from the backtrack counts and other numerical results reported by the solver. Where the solver reports results to the screen rather than writing them directly to a data file, the reported values are transcribed into plain-text input files for subsequent analysis.
+Where the solver reports results to the screen rather than writing them directly to a data file, the reported values are transcribed into plain-text files in the format required by the corresponding analysis program.
 
-Each file should retain the row and column structure required by the corresponding analysis program. The meaning of the columns is documented either in the file itself, in the associated analysis script, or in the reproducibility documentation.
-
-The files in this directory represent inputs to the analysis procedures rather than newly generated experimental results.
+These files may contain backtrack counts, trial numbers, checkpoint results, learning-rate comparisons, or other numerical values used in the reported analyses. The column structure and interpretation of each file are documented in the associated analysis script or supporting documentation.
 
 ## `figures/`
 
-This subdirectory contains figures generated from the experimental results, including plots used to examine training performance, learning-rate effects, and held-out test-set performance.
+This subdirectory contains figures generated from the experimental results.
 
-Where applicable, figure filenames should correspond clearly to the experiment or comparison shown. The source data for each figure are stored in `input_analysis/`, and the programs used to generate the figures are stored in the repository’s analysis-script directory.
+The figures may include plots of:
 
-Figures included in the manuscript may have been resized or reformatted for publication, but their underlying numerical content is unchanged.
+* performance across training trials;
+* comparisons among learning rates;
+* training-set performance; and
+* held-out test-set performance.
+
+Figure filenames should clearly identify the experiment or comparison shown. The corresponding analysis inputs are stored in `input_analysis/`, and the programs used to generate the figures are stored in the repository’s analysis-script directory.
 
 ## `tables/`
 
-This subdirectory contains tables generated from the statistical analyses.
+This subdirectory contains tables summarizing the experimental and statistical results.
 
 These may include:
 
@@ -43,21 +46,4 @@ These may include:
 * Holm–Bonferroni corrected p-values; and
 * summaries of training-set and held-out test-set performance.
 
-The tables are derived from the files in `input_analysis/` using the corresponding analysis programs. Table numbering in filenames may follow the numbering used in the manuscript where appropriate.
-
-## Reproducibility
-
-The general workflow is:
-
-```text
-solver output
-    ↓
-analysis-ready files in input_analysis/
-    ↓
-statistical and plotting programs
-    ↓
-figures/ and tables/
-```
-
-The repository’s main `README.md`, analysis scripts, and reproducibility notes provide the commands, parameter settings, data formats, and experimental procedures needed to reproduce the reported results.
-Create results directory
+Where appropriate, filenames may follow the table numbering used in the manuscript. The values in these tables are derived from the files stored in `input_analysis/` using the corresponding analysis programs.
