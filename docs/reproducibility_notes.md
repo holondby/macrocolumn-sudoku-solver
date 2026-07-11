@@ -26,17 +26,17 @@ macrocolumn-sudoku-solver/
 │
 ├── scripts/
 │   ├── run_macrocolumn_solver.py
-│   ├── reproduce_descriptive_statistics.py
-│   ├── reproduce_learning_rate_plots.py
-│   └── reproduce_wilcoxon_tests.py
+│   ├── descriptive_statistics.py
+│   ├── overlay_line_plot.py
+│   └── Wilcoxon_signed_rank_test.py
 │
 ├── data/
-│   ├── Inkala_puzzles/
+│   ├── Inkala_data/
 │   ├── training_data/
 │   └── test_data/
 │
 ├── results/
-│   ├── raw_outputs/
+│   ├── analysis_inputs/
 │   ├── tables/
 │   └── figures/
 │
