@@ -7,7 +7,7 @@ The directory is organized as follows:
 ```text
 results/
 ├── README.md
-├── input_analysis/
+├── analysis_inputs/
 ├── figures/
 └── tables/
 ```
@@ -31,7 +31,7 @@ The figures may include plots of:
 * training-set performance; and
 * held-out test-set performance.
 
-Figure filenames should clearly identify the experiment or comparison shown. The corresponding analysis inputs are stored in `input_analysis/`, and the programs used to generate the figures are stored in the repository’s analysis-script directory.
+Figure filenames should clearly identify the experiment or comparison shown. The corresponding analysis inputs are stored in `analysis_inputs/`, and the programs used to generate the figures are stored in the repository’s analysis-script directory.
 
 ## `tables/`
 
@@ -46,4 +46,4 @@ These may include:
 * Holm–Bonferroni corrected p-values; and
 * summaries of training-set and held-out test-set performance.
 
-Where appropriate, filenames may follow the table numbering used in the manuscript. The values in these tables are derived from the files stored in `input_analysis/` using the corresponding analysis programs.
+Where appropriate, filenames may follow the table numbering used in the manuscript. The values in these tables are derived from the files stored in `analysis_inputs/` using the corresponding analysis programs.
