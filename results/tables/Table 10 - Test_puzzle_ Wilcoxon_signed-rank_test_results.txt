@@ -1,0 +1,6 @@
+Test-Data Wilcoxon Signed-Rank Test Results
+
+Statistic                         Trial 10      Trial 20      Trial 30      Trial 40      Trial 50
+Wilcoxon W+                       193.0         183.0         217.0         210.0         194.5
+Raw p-value                       0.1146        0.1798        0.0282        0.0447        0.1091
+Corrected p-value                 0.3273        0.3273        0.1411        0.1787        0.3273

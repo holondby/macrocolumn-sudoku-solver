@@ -1,0 +1,11 @@
+Test-Data Performance After Selected Trial Numbers
+
+Statistic                         Trial 0       Trial 10      Trial 20      Trial 30      Trial 40      Trial 50
+Minimum                           0             0             0             0             0             0
+Maximum                           22671         8758          48861         5453          6853          6761
+Mean                              3900.4000     1318.4800     3502.4400     1043.6800     1238.4400     1297.6000
+Median                            879.0000      765.0000      680.0000      575.0000      578.0000      622.0000
+Standard Deviation                6367.9102     1969.1907     9517.6467     1255.8818     1831.4640     1827.5063
+Median Absolute Deviation         1283.9335     966.6566      919.2134      542.6324      551.5280      662.7232
+Shapiro-Wilk W                    0.6385        0.6117        0.3628        0.7360        0.6224        0.6520
+Shapiro-Wilk p-value              < 0.0001      < 0.0001      < 0.0001      < 0.0001      < 0.0001      < 0.0001

@@ -1,0 +1,11 @@
+Training-Data Performance After Selected Trial Numbers
+
+Statistic                         Trial 0       Trial 10      Trial 20      Trial 30      Trial 40      Trial 50
+Minimum                           0             0             0             0             0             0
+Maximum                           164656        13873         12433         17186         22693         2388
+Mean                              6518.0667     1346.5333     662.1333      510.2933      527.2267      90.4133
+Median                            304.0000      82.0000       14.0000       9.0000        0.0000        0.0000
+Standard Deviation                25411.1509    2845.7569     1769.7506     2183.9760     2720.8973     313.5989
+Median Absolute Deviation         450.7111      121.5734      20.7564       13.3434       0.0000        0.0000
+Shapiro-Wilk W                    0.2488        0.5358        0.4186        0.2286        0.1888        0.3102
+Shapiro-Wilk p-value              < 0.0001      < 0.0001      < 0.0001      < 0.0001      < 0.0001      < 0.0001

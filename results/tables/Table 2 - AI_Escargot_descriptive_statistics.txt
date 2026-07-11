@@ -1,0 +1,11 @@
+AI Escargot Learning-Rate Descriptive Statistics
+
+Statistic                         0.01          0.001         0.0001
+Minimum                           1302          0             0
+Maximum                           78661         223           17861
+Mean                              19595.7400    7.4800        448.7800
+Median                            15094.0000    0.0000        0.0000
+Standard Deviation                15481.9409    34.5961       2567.4982
+Median Absolute Deviation         10957.1717    0.0000        0.0000
+Shapiro-Wilk W                    0.8666        0.2275        0.1697
+Shapiro-Wilk p-value              < 0.0001      < 0.0001      < 0.0001
