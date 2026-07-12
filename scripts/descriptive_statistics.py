@@ -9,8 +9,7 @@ Compute descriptive statistics and Shapiro-Wilk normality tests for the
 measurement columns in a user-specified whitespace-separated TXT file.
 
 The first column, column 0, is assumed to contain a row identifier, such as
-a trial number or puzzle number. It is not included in the statistical
-analysis.
+a trial number or puzzle number. It is not included in the statistical analysis.
 
 Example of an appropriate input file:
 
@@ -22,7 +21,7 @@ Example of an appropriate input file:
 
 In this example:
 
-Column 0: row identifier e.g., trial or puzzle number.
+Column 0: trial number
 Column 1: backtrack counts for learning rate 0.01
 Column 2: backtrack counts for learning rate 0.001
 Column 3: backtrack counts for learning rate 0.0001
