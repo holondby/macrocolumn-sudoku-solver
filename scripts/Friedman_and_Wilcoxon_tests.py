@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Friedman omnibus test and Holm-corrected Wilcoxon pairwise tests
 #
@@ -498,3 +504,10 @@ def main():
 # Run main() only when this file is executed directly.
 if __name__ == "__main__":
     main()
+
+
+# In[ ]:
+
+
+
+
