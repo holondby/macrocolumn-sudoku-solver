@@ -3,7 +3,6 @@ Create an overlay line plot from a whitespace-separated TXT data file.
 
 Expected input-file format:
 
-0    4532     4532     4532
 1    40723    103      4545
 2    36607    0        17861
 3    7277     0        0
@@ -23,7 +22,6 @@ spaces, tabs, or mixed whitespace.
 
 import pandas as pd
 import matplotlib.pyplot as plt
-
 
 # -------------------------------------------------------------------------
 # Define column labels for the input file.
@@ -120,10 +118,35 @@ for learning_rate, line_style, line_color in zip(learning_rates, line_styles, li
 # -------------------------------------------------------------------------
 
 # Add the main title for the plot.
-plt.title("Learning Rate Counts Across Trials")
+plt.title("Backtrack Counts Across Training Trials for Three Learning Rates")
 
 # Label the horizontal axis.
 plt.xlabel("Trial Number")
+
+# Determine the lowest and highest trial numbers in the input file.
+minimum_trial = int(df["Trial Number"].min())
+maximum_trial = int(df["Trial Number"].max())
+
+# Begin with the lowest trial number.
+trial_ticks = [minimum_trial]
+
+# Add multiples of 10 that fall within the trial-number range.
+first_multiple_of_10 = ((minimum_trial + 9) // 10) * 10
+
+trial_ticks.extend(
+    range(first_multiple_of_10, maximum_trial + 1, 10)
+)
+
+# Include the highest trial number if it is not already present.
+if maximum_trial not in trial_ticks:
+    trial_ticks.append(maximum_trial)
+
+# Remove any duplicates and put the tick values in ascending order.
+trial_ticks = sorted(set(trial_ticks))
+
+# Apply the calculated labels and limits to the horizontal axis.
+plt.xticks(trial_ticks)
+plt.xlim(minimum_trial, maximum_trial)
 
 # Label the vertical axis.
 plt.ylabel("Count")
