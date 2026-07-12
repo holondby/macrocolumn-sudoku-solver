@@ -31,6 +31,7 @@ macrocolumn-sudoku-solver/
 ├── scripts/
 │   ├── run_macrocolumn_solver.py
 │   ├── descriptive_statistics.py
+│   ├── Friedman_chi_square_test.py
 │   ├── Wilcoxon_signed_rank_test.py
 │   └── overlay_line_plot.py
 │
