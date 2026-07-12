@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 """
@@ -22,7 +22,7 @@ Example of an appropriate input file:
 
 In this example:
 
-Column 0: trial number
+Column 0: row identifier e.g., trial or puzzle number.
 Column 1: backtrack counts for learning rate 0.01
 Column 2: backtrack counts for learning rate 0.001
 Column 3: backtrack counts for learning rate 0.0001
