@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[3]:
+
+
 """
 Create an overlay line plot from a whitespace-separated TXT data file.
 
@@ -172,3 +178,10 @@ plt.savefig("overlay_line_plot.png", dpi=300)
 
 # Display the plot on screen.
 plt.show()
+
+
+# In[ ]:
+
+
+
+
