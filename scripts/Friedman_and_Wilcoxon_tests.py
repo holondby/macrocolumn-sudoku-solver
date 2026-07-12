@@ -1,28 +1,42 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # Friedman omnibus test and Holm-corrected Wilcoxon pairwise tests
 #
-# Input file:
-#     Headerless numeric table.
-#     Rows are matched observations.
-#     Columns are related conditions, not row labels or ID numbers.
-#     Columns may be separated by tabs, spaces, or mixed whitespace.
+# Expected input file:
+#     A headerless numeric table separated by tabs, spaces, or mixed whitespace.
+#
+#     Column 0:
+#         Trial number. This column identifies the matched observations and is
+#         not included in the statistical analysis.
+#
+#     Columns 1 onward:
+#         Related experimental conditions measured during each trial.
+#
+# Example:
+#
+#     1    337490    29830    163300
+#     2    106364    23764    102948
+#     3    142682        0      2254
+#
+# In this example:
+#     Column 0 contains the trial number.
+#     Columns 1–3 contain measurements for three related conditions.
 #
 # Analysis:
-#     The Friedman test compares all related columns together.
-#     The Wilcoxon tests compare every unique pair of columns.
-#     Thus, col_0 is compared with each later column, and later columns
-#     are also compared with one another.
+#     The Friedman test compares all related condition columns together.
+#     The Wilcoxon signed-rank tests compare every unique pair of condition
+#     columns. The trial-number column is excluded from all statistical tests.
 #
 # Output:
-#     Friedman chi-square statistic and p-value.
-#     Pairwise Wilcoxon W, W+, W-, raw p, and Holm-corrected p.
+#     Friedman chi-square statistic, degrees of freedom, and p-value.
+#     Pairwise Wilcoxon W, W+, W-, raw p-values, and Holm-corrected p-values.
 # ──────────────────────────────────────────────────────────────────────────────
 
 import re
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-from pathlib import Path
 from scipy.stats import friedmanchisquare, rankdata, wilcoxon
 
 
@@ -33,7 +47,7 @@ from scipy.stats import friedmanchisquare, rankdata, wilcoxon
 # Ask the user for the input file to analyze.
 input_file = input("Enter the TXT filename or full file path: ").strip()
 
-# Stop if the user presses Enter without typing a filename.
+# Stop if the user presses Enter without entering a filename.
 if not input_file:
     print("No filename was entered.")
     raise SystemExit
@@ -48,12 +62,16 @@ ALPHA = 0.05
 
 def read_counts_file(filename):
     """
-    Read a headerless whitespace-delimited numeric table.
+    Read a headerless, whitespace-delimited numeric table.
+
+    Column 0 is treated as the trial-number identifier.
+    Columns 1 onward are treated as related experimental conditions.
 
     Comma-formatted integers, such as 23,085, are accepted.
     Rows with inconsistent column counts are ignored.
     """
-    # Convert the filename string to a Path object.
+
+    # Convert the supplied filename to a Path object.
     path = Path(filename)
 
     # Stop if the requested file does not exist.
@@ -67,43 +85,56 @@ def read_counts_file(filename):
     expected_cols = None
 
     # Open the file as plain text.
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            # Remove leading and trailing spaces from the line.
+    with open(path, "r", encoding="utf-8") as file:
+        for line in file:
+
+            # Remove leading and trailing whitespace.
             line = line.strip()
 
             # Skip blank lines.
             if not line:
                 continue
 
-            # Extract integers, including comma-formatted integers such as 23,085.
-            values = re.findall(r"-?\d{1,3}(?:,\d{3})+|-?\d+", line)
+            # Extract integers, including comma-formatted values such as 23,085.
+            values = re.findall(
+                r"-?\d{1,3}(?:,\d{3})+|-?\d+",
+                line
+            )
 
             # Skip lines that contain no usable numeric values.
             if not values:
                 continue
 
-            # Convert extracted strings to integers after removing commas.
-            values = [int(v.replace(",", "")) for v in values]
+            # Remove commas and convert the extracted values to integers.
+            values = [int(value.replace(",", "")) for value in values]
 
-            # Use the first usable row to set the expected column count.
+            # Use the first usable row to establish the expected column count.
             if expected_cols is None:
                 expected_cols = len(values)
 
-            # Keep only rows with the expected number of columns.
+            # Keep only rows that have the expected number of columns.
             if len(values) == expected_cols:
                 rows.append(values)
 
-    # Stop if no numeric data rows were found.
+    # Stop if no usable numeric rows were found.
     if not rows:
         raise ValueError("No usable numeric data rows were found.")
 
-    # At least two related columns are needed for any paired Wilcoxon comparison.
-    if expected_cols < 2:
-        raise ValueError("At least two columns are required for Wilcoxon comparisons.")
+    # The file must contain one trial-number column and at least two
+    # related condition columns for a paired Wilcoxon comparison.
+    if expected_cols < 3:
+        raise ValueError(
+            "The input file must contain a trial-number column and "
+            "at least two related condition columns."
+        )
 
-    # Assign generic column names because the input file has no header.
-    return pd.DataFrame(rows, columns=[f"col_{i}" for i in range(expected_cols)])
+    # Name column 0 as the trial-number column.
+    # Assign generic names to the condition columns because the file has no header.
+    column_names = ["trial_number"] + [
+        f"col_{i}" for i in range(1, expected_cols)
+    ]
+
+    return pd.DataFrame(rows, columns=column_names)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -112,36 +143,39 @@ def read_counts_file(filename):
 
 def holm_correct(p_values):
     """
-    Return Holm-corrected p-values in the original order.
+    Return Holm-corrected p-values in their original comparison order.
     """
-    # Convert the input p-values to a NumPy array.
+
+    # Convert the raw p-values to a NumPy floating-point array.
     p_values = np.asarray(p_values, dtype=float)
 
     # Holm correction cannot be applied to missing p-values.
     if np.any(np.isnan(p_values)):
-        raise ValueError("At least one raw p-value is NaN. Check the input data.")
+        raise ValueError(
+            "At least one raw p-value is NaN. Check the input data."
+        )
 
-    # Number of pairwise comparisons.
-    m = len(p_values)
+    # Record the number of pairwise comparisons.
+    number_of_comparisons = len(p_values)
 
-    # Sort p-values from smallest to largest.
+    # Sort the raw p-values from smallest to largest.
     order = np.argsort(p_values)
-    sorted_p = p_values[order]
+    sorted_p_values = p_values[order]
 
     # Store corrected p-values in sorted order.
-    corrected_sorted = np.empty(m)
+    corrected_sorted = np.empty(number_of_comparisons)
 
-    # Enforce monotonicity of the adjusted p-values.
-    running_max = 0.0
+    # Track the largest adjusted value encountered to enforce monotonicity.
+    running_maximum = 0.0
 
     # Apply the Holm-Bonferroni adjustment.
-    for i, p in enumerate(sorted_p):
-        adjusted = (m - i) * p
-        running_max = max(running_max, adjusted)
-        corrected_sorted[i] = min(running_max, 1.0)
+    for index, p_value in enumerate(sorted_p_values):
+        adjusted_p = (number_of_comparisons - index) * p_value
+        running_maximum = max(running_maximum, adjusted_p)
+        corrected_sorted[index] = min(running_maximum, 1.0)
 
-    # Restore corrected p-values to the original comparison order.
-    corrected = np.empty(m)
+    # Restore the corrected p-values to the original comparison order.
+    corrected = np.empty(number_of_comparisons)
     corrected[order] = corrected_sorted
 
     return corrected
@@ -154,19 +188,26 @@ def holm_correct(p_values):
 def wilcoxon_details(x, y):
     """
     Compute Wilcoxon signed-rank details for one paired comparison.
+
+    Differences are calculated as x - y.
+
+    Therefore:
+        W+ is the rank sum for observations where x > y.
+        W- is the rank sum for observations where y > x.
     """
-    # Convert the paired columns to floating-point arrays.
+
+    # Convert the paired condition columns to floating-point arrays.
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
 
-    # Compute paired differences.
-    diffs = x - y
+    # Calculate the paired differences.
+    differences = x - y
 
     # Remove zero differences, as required by zero_method="wilcox".
-    nonzero_diffs = diffs[diffs != 0]
+    nonzero_differences = differences[differences != 0]
 
-    # If all paired differences are zero, the Wilcoxon test is undefined.
-    if len(nonzero_diffs) == 0:
+    # The Wilcoxon test is undefined when all paired differences are zero.
+    if len(nonzero_differences) == 0:
         return {
             "W": 0.0,
             "W+": 0.0,
@@ -176,15 +217,19 @@ def wilcoxon_details(x, y):
         }
 
     # Rank the absolute nonzero differences.
-    ranks = rankdata(np.abs(nonzero_diffs), method="average")
+    # Average ranks are assigned when tied absolute differences occur.
+    ranks = rankdata(
+        np.abs(nonzero_differences),
+        method="average"
+    )
 
-    # W+ is the sum of ranks for positive differences.
-    w_plus = np.sum(ranks[nonzero_diffs > 0])
+    # Calculate the positive signed-rank sum.
+    w_plus = np.sum(ranks[nonzero_differences > 0])
 
-    # W- is the sum of ranks for negative differences.
-    w_minus = np.sum(ranks[nonzero_diffs < 0])
+    # Calculate the negative signed-rank sum.
+    w_minus = np.sum(ranks[nonzero_differences < 0])
 
-    # For a two-sided Wilcoxon test, W is the smaller signed-rank sum.
+    # For a two-sided test, W is the smaller signed-rank sum.
     w_statistic = min(w_plus, w_minus)
 
     try:
@@ -197,8 +242,9 @@ def wilcoxon_details(x, y):
             correction=False,
             method="auto"
         )
+
     except TypeError:
-        # Compatibility with older SciPy versions.
+        # Use the older argument name for compatibility with older SciPy versions.
         result = wilcoxon(
             x,
             y,
@@ -208,13 +254,13 @@ def wilcoxon_details(x, y):
             mode="auto"
         )
 
-    # Return the Wilcoxon statistic details for this column pair.
+    # Return the test details for this pair of condition columns.
     return {
         "W": w_statistic,
         "W+": w_plus,
         "W-": w_minus,
         "p_raw": result.pvalue,
-        "n_nonzero_pairs": len(nonzero_diffs)
+        "n_nonzero_pairs": len(nonzero_differences)
     }
 
 
@@ -223,53 +269,93 @@ def wilcoxon_details(x, y):
 # ──────────────────────────────────────────────────────────────────────────────
 
 def main():
-    # Read the input file and stop gracefully if there is a problem.
+
+    # Read the input file and stop gracefully if a problem occurs.
     try:
-        df = read_counts_file(input_file)
+        full_df = read_counts_file(input_file)
+
     except Exception as error:
         print(f"Error: {error}")
         return
 
-    # Use compact numeric formatting when printing pandas tables.
-    pd.set_option("display.float_format", lambda x: f"{x:.4g}")
+    # Store the trial numbers separately.
+    # They identify the matched rows but are not analyzed statistically.
+    trial_numbers = full_df["trial_number"].copy()
 
-    # Show the user a preview of the data that was read.
+    # Analyze only columns 1 onward.
+    condition_df = full_df.drop(columns="trial_number").copy()
+
+    # Use compact numeric formatting when printing pandas tables.
+    pd.set_option(
+        "display.float_format",
+        lambda value: f"{value:.4g}"
+    )
+
+    # Show a preview of the data read from the file.
     print()
     print("First few rows read from file:")
-    print(df.head())
+    print(full_df.head())
 
-    # Report the size of the usable dataset.
-    print(f"\nNumber of usable rows: {len(df)}")
-    print(f"Number of numeric columns: {df.shape[1]}")
+    # Report the structure of the usable dataset.
+    print()
+    print(f"Number of usable trials: {len(full_df)}")
+    print("Trial-number column: trial_number")
+    print(
+        "Condition columns analyzed: "
+        f"{', '.join(condition_df.columns)}"
+    )
+    print(
+        "Number of condition columns analyzed: "
+        f"{condition_df.shape[1]}"
+    )
+
+    # Report the range of trial numbers.
+    print(
+        "Trial-number range: "
+        f"{trial_numbers.min()} to {trial_numbers.max()}"
+    )
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Friedman test across all related columns
+    # Friedman test across the related condition columns
     # ──────────────────────────────────────────────────────────────────────────
 
     print()
-    print("Friedman test across related columns")
-    print("Hypothesis: at least one column differs from the others")
+    print("Friedman test across related condition columns")
+    print("The trial-number column is excluded.")
+    print("Hypothesis: at least one condition differs from the others.")
     print(f"Alpha: {ALPHA}")
     print()
 
-    # The Friedman test requires at least three related conditions.
-    if df.shape[1] < 3:
+    # The Friedman test requires at least three related condition columns.
+    if condition_df.shape[1] < 3:
         print("Friedman test not performed.")
-        print("Reason: The Friedman test requires at least three related columns.")
+        print(
+            "Reason: The Friedman test requires at least three "
+            "related condition columns."
+        )
+
     else:
         try:
-            # Pass each DataFrame column as one related condition.
+            # Pass each condition column as one related condition.
             friedman_result = friedmanchisquare(
-                *[df[column].to_numpy(dtype=float) for column in df.columns]
+                *[
+                    condition_df[column].to_numpy(dtype=float)
+                    for column in condition_df.columns
+                ]
             )
 
-            # Extract the Friedman statistic, p-value, and degrees of freedom.
+            # Extract the Friedman statistic and p-value.
             friedman_statistic = friedman_result.statistic
             friedman_p = friedman_result.pvalue
-            friedman_df = df.shape[1] - 1
+
+            # Degrees of freedom equal the number of conditions minus one.
+            friedman_df = condition_df.shape[1] - 1
 
             # Print the Friedman test results.
-            print(f"Columns tested : {', '.join(df.columns)}")
+            print(
+                "Columns tested : "
+                f"{', '.join(condition_df.columns)}"
+            )
             print(f"χ² statistic   : {friedman_statistic:.4g}")
             print(f"df             : {friedman_df}")
             print(f"p              : {friedman_p:.4g}")
@@ -280,84 +366,133 @@ def main():
             print(f"Reason: {error}")
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Wilcoxon tests for every unique pair of columns
+    # Wilcoxon tests for every unique pair of condition columns
     # ──────────────────────────────────────────────────────────────────────────
 
     # Store one result dictionary for each pairwise comparison.
     results = []
 
-    # Get the column names in their current order.
-    columns = list(df.columns)
+    # Get the condition-column names in their original order.
+    condition_columns = list(condition_df.columns)
 
-    # Compare every unique pair: col_0 vs col_1, col_0 vs col_2, etc.
-    for i in range(len(columns) - 1):
-        for j in range(i + 1, len(columns)):
-            col_a = columns[i]
-            col_b = columns[j]
+    # Compare every unique pair of condition columns.
+    for first_index in range(len(condition_columns) - 1):
+        for second_index in range(
+            first_index + 1,
+            len(condition_columns)
+        ):
+            first_column = condition_columns[first_index]
+            second_column = condition_columns[second_index]
 
-            # Compute Wilcoxon details for this pair of related columns.
-            stats = wilcoxon_details(df[col_a], df[col_b])
+            # Compute the Wilcoxon details for this paired comparison.
+            statistics = wilcoxon_details(
+                condition_df[first_column],
+                condition_df[second_column]
+            )
 
-            # Save the results for later conversion to a DataFrame.
+            # Store the results for later conversion to a DataFrame.
             results.append({
-                "comparison": f"{col_a} vs {col_b}",
-                "W": stats["W"],
-                "W+": stats["W+"],
-                "W-": stats["W-"],
-                "raw_p": stats["p_raw"],
-                "n_nonzero_pairs": stats["n_nonzero_pairs"]
+                "comparison": (
+                    f"{first_column} vs {second_column}"
+                ),
+                "W": statistics["W"],
+                "W+": statistics["W+"],
+                "W-": statistics["W-"],
+                "raw_p": statistics["p_raw"],
+                "n_nonzero_pairs": statistics["n_nonzero_pairs"]
             })
 
-    # Convert the list of result dictionaries to a DataFrame.
+    # Convert the pairwise results to a DataFrame.
     results_df = pd.DataFrame(results)
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Holm-Bonferroni correction for Wilcoxon p-values
+    # Holm-Bonferroni correction for the pairwise Wilcoxon p-values
     # ──────────────────────────────────────────────────────────────────────────
 
-    # Initialize corrected p-values and significance flags.
+    # Initialize the corrected p-value and significance columns.
     results_df["holm_corrected_p"] = np.nan
     results_df["significant_after_holm"] = False
 
-    # Identify comparisons with valid raw p-values.
+    # Identify comparisons that produced valid raw p-values.
     valid_p_mask = results_df["raw_p"].notna()
 
-    # Correct only valid p-values; all-zero comparisons remain NaN.
+    # Correct only valid p-values.
+    # Comparisons in which every paired difference is zero remain NaN.
     if valid_p_mask.any():
-        results_df.loc[valid_p_mask, "holm_corrected_p"] = holm_correct(
+        results_df.loc[
+            valid_p_mask,
+            "holm_corrected_p"
+        ] = holm_correct(
             results_df.loc[valid_p_mask, "raw_p"]
         )
 
-        # Mark comparisons that remain significant after Holm correction.
-        results_df.loc[valid_p_mask, "significant_after_holm"] = (
-            results_df.loc[valid_p_mask, "holm_corrected_p"] < ALPHA
+        # Identify comparisons that remain significant after correction.
+        results_df.loc[
+            valid_p_mask,
+            "significant_after_holm"
+        ] = (
+            results_df.loc[
+                valid_p_mask,
+                "holm_corrected_p"
+            ] < ALPHA
         )
 
-    # Print the Wilcoxon results table.
+    # Print the pairwise Wilcoxon results.
     print()
-    print("Wilcoxon signed-rank tests for all pairwise column comparisons")
-    print("Zero-difference pairs are removed using zero_method='wilcox'.")
+    print(
+        "Wilcoxon signed-rank tests for all pairwise "
+        "condition comparisons"
+    )
+    print("The trial-number column is excluded.")
+    print(
+        "Zero-difference pairs are removed using "
+        "zero_method='wilcox'."
+    )
     print("Two-sided p-values are reported.")
     print(f"Alpha: {ALPHA}")
     print()
 
     print(results_df.to_string(index=False))
 
-    # Print explanatory notes for interpreting the output columns.
+    # Print notes explaining the output.
     print()
     print("Notes:")
-    print("  The Friedman test is an omnibus repeated-measures test across all columns.")
+    print(
+        "  Column 0 contains trial numbers and is not included "
+        "in any statistical test."
+    )
+    print(
+        "  The Friedman test is an omnibus repeated-measures "
+        "test across the condition columns."
+    )
     print("  The Friedman test is not directional.")
     print("  W is the smaller of W+ and W-.")
-    print("  W+ is the rank sum for cases where the first named column > the second named column.")
-    print("  W- is the rank sum for cases where the second named column > the first named column.")
-    print("  raw_p is the uncorrected two-sided Wilcoxon p-value.")
-    print("  holm_corrected_p is the Holm-Bonferroni corrected p-value.")
-    print("  significant_after_holm is True when holm_corrected_p < alpha.")
-
+    print(
+        "  W+ is the rank sum for trials where the first named "
+        "condition > the second named condition."
+    )
+    print(
+        "  W- is the rank sum for trials where the second named "
+        "condition > the first named condition."
+    )
+    print(
+        "  n_nonzero_pairs is the number of paired differences "
+        "included in the Wilcoxon test."
+    )
+    print(
+        "  raw_p is the uncorrected two-sided Wilcoxon p-value."
+    )
+    print(
+        "  holm_corrected_p is the Holm-Bonferroni corrected "
+        "p-value."
+    )
+    print(
+        "  significant_after_holm is True when the corrected "
+        "p-value is less than alpha."
+    )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Run program
+# Run the program
 # ──────────────────────────────────────────────────────────────────────────────
 
 # Run main() only when this file is executed directly.
