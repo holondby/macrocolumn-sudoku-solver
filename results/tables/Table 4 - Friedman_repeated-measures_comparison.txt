@@ -1,5 +1,3 @@
-Friedman Omnibus Test Results
-
 Puzzle           χ² Statistic    Degrees of Freedom    p-value       Interpretation
-AI Escargot             94.20                     2    3.505e-21     Nominally significant
-Everest                 91.88                     2    1.118e-20     Nominally significant
+AI Escargot             94.2                      2    < 0.0001     Nominally significant
+Everest                 91.8811                   2    < 0.0001     Nominally significant
