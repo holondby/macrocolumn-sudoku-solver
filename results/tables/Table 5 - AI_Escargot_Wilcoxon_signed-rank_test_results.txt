@@ -1,6 +1,4 @@
-AI Escargot Pairwise Wilcoxon Signed-Rank Test Results
-
-Comparison           W+      Unadjusted p-value    Holm-Adjusted p-value    Interpretation
-0.01 vs 0.001      1275              1.776e-15               5.329e-15    0.001 is substantially better
-0.01 vs 0.0001     1275              1.776e-15               5.329e-15    0.0001 is substantially better
-0.001 vs 0.0001      15                 0.2003                  0.2003    Not substantially different
+Comparison           W    Unadjusted p-value    Holm-adjusted p-value    Interpretation
+0.01 vs 0.001        0    < 0.0001              < 0.0001                 0.001 is substantially better
+0.01 vs 0.0001       0    < 0.0001              < 0.0001                 0.0001 is substantially better
+0.001 vs 0.0001     15    0.2324                0.2324                   not substantially different
