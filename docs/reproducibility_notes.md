@@ -160,15 +160,37 @@ The fixed random seed is:
 SEED = 121252
 ```
 
-The seed is applied to Python, NumPy, and TensorFlow where supported.
+The seed is applied to Python, NumPy, and TensorFlow where supported. Python’s random-number generator controls puzzle-order shuffling, NumPy controls exploratory action sampling and minibatch ordering, and TensorFlow controls network initialization and applicable TensorFlow operations.
 
-### Network architecture
+### Network Architecture
+
+The input is a 9 × 9 × 9 one-hot representation of the Sudoku state.
 
 The convolutional encoder uses:
 
 ```text
 CONV_FILTERS = 36
 KERNEL_SIZE = 3
+```
+
+Its structure is:
+
+```text
+Conv2D:
+36 filters
+3 × 3 kernel
+ReLU activation
+same padding
+
+Conv2D:
+36 filters
+3 × 3 kernel
+stride = 2
+ReLU activation
+valid padding
+
+Reshape to a 16 × 36 sequence
+Layer normalization
 ```
 
 The macrocolumn contains seven competing minicolumns:
@@ -185,13 +207,13 @@ N_LAYERS = 3
 DENSE_UNITS = 30
 ```
 
-Thus, each minicolumn has a capacity score of:
+Thus, each minicolumn consists of one LSTM layer with 10 units followed by three Dense layers with 30 ReLU units each. Its capacity score is:
 
 ```text
 10 + (3 × 30) = 100
 ```
 
-### Minicolumn competition and normalization
+### Minicolumn Competition and Normalization
 
 The main competition and normalization parameters are:
 
@@ -203,11 +225,13 @@ WTA_BETA = 2.0
 RING_TOPOLOGY = True
 ```
 
-Minicolumn inhibition uses ring-distance Gaussian weights followed by row normalization and divisive normalization. The inhibited minicolumn outputs are integrated through a soft winner-take-all readout.
+The minicolumn feature vectors undergo ring-distance Gaussian divisive normalization. A separate linear 729-action Q-value head is then applied to each inhibited minicolumn output.
 
-Candidate Sudoku cells also undergo a separate soft winner-take-all and divisive-normalization process. At this search-policy level, peer relationships are defined by shared rows, columns, or 3 × 3 boxes rather than by minicolumn ring distance.
+Each minicolumn is scored by its largest estimated Q-value among the currently legal actions. The seven Q-value heads are then combined using soft winner-take-all weights to produce the final 729-element action-value output.
 
-### Reinforcement-learning parameters
+Candidate Sudoku cells undergo a separate soft winner-take-all and divisive-normalization process. At this search-policy level, peer relationships are defined by shared rows, columns, or 3 × 3 boxes rather than by minicolumn ring distance.
+
+### Reinforcement-Learning Parameters
 
 The principal learning parameters are:
 
@@ -234,12 +258,41 @@ TD_BATCH_SIZE = 32
 TD_BUFFER_MAX = 256
 ```
 
-The runtime display settings used for the reported runs were:
+### Optimization
+
+The network is trained using:
+
+```text
+Optimizer: Adam
+Loss: Huber loss plus Dense-layer L1 regularization
+Gradient clipping: clipnorm = 1.0
+```
+
+The learning rate is supplied by the user when training begins.
+
+### Inference Cache and Numerical Constants
+
+The depth-first-search inference cache and internal numerical constants are:
+
+```text
+CACHE_MAX = 20000
+EPS = 1e-12
+NEG_Q_CLAMP = -1e9
+```
+
+The cache stores predicted Q-values for previously encountered Sudoku states during a solve. It is cleared whenever the model is updated so that cached predictions do not become inconsistent with the current network parameters.
+
+### Runtime Defaults
+
+The current program defaults are:
 
 ```text
 SHOW_MOVES = False
 SHOW_PLOT = False
+CKPT_PREFIX = "macrocolumn_model"
 ```
+
+With these settings, the solver reports numerical performance measures without printing the full move sequence or displaying graphical Sudoku boards.
 
 ---
 
@@ -247,7 +300,7 @@ SHOW_PLOT = False
 
 The solver combines deterministic constraint propagation, learned branching decisions, and depth-first search.
 
-Forced cells with only one legal digit are filled deterministically. Forced nonterminal placements are not treated as separate learned transitions.
+Forced cells with only one legal digit are filled deterministically. Forced nonterminal moves are not learned separately. If a forced sequence ends in success or contradiction, only the final move receives a learning target.
 
 At a non-forced decision state, the network estimates action values for legal cell-digit assignments. Legal-digit values are reduced to cell-level drives, and the candidate cells compete through soft winner-take-all activity and divisive normalization.
 
@@ -337,7 +390,7 @@ macrocolumn_model (3).keras
 ...
 ```
 
-When the solver starts, it searches the current working directory for matching checkpoints and loads the highest-numbered available checkpoint.
+When training or evaluation begins, the solver searches the current working directory for matching checkpoints and loads the highest-numbered available checkpoint.
 
 Consequently:
 
@@ -415,7 +468,11 @@ learning rate = 0.0001
 training trials = 50
 ```
 
-The solver shuffles the order of the training puzzles after each completed trial using the seeded random-number procedure.
+The first training trial begins with the puzzles in case-insensitive filename order. This permits a user-specified initial sequence, such as easy to hard, by naming the puzzle files so that they sort in the intended order.
+
+After each completed training trial, the puzzle list is shuffled using Python’s seeded random-number generator. Because the 50-trial experiment was conducted in consecutive 10-trial increments, the same running program session was continued between increments, preserving both the learned model state and the evolving puzzle-order sequence.
+
+Held-out evaluations process the test puzzles in case-insensitive filename order.
 
 The manuscript reports performance at:
 
@@ -440,7 +497,7 @@ trial 40
 trial 50
 ```
 
-### Held-out evaluation
+### Held-Out Evaluation
 
 Each checkpoint is evaluated on:
 
@@ -579,18 +636,18 @@ Run the combined inferential-analysis program with:
 python scripts/Friedman_and_Wilcoxon_tests.py
 ```
 
-The program requests the TXT filename or full path.
+The program requests the TXT filename or full file path.
 
-Column 0 is treated as an identifier and is ignored. Columns 1 onward are treated as matched count conditions.
+Column 0 is treated as an identifier and is excluded from the statistical analysis. Columns 1 onward are treated as matched count conditions.
 
-The program can either:
+The program allows either:
 
 ```text
-1. compare all count columns pairwise; or
-2. compare Count 1 only with each later count column.
+1. all count columns to be compared pairwise; or
+2. Count 1 to be compared only with each later count column.
 ```
 
-### Learning-rate analyses
+### Learning-Rate Analyses
 
 For:
 
@@ -601,11 +658,15 @@ everest_counts.txt
 
 select all pairwise comparisons.
 
-The Friedman test compares the three learning-rate trajectories.
+The Friedman test compares the three matched learning-rate trajectories:
 
-The Wilcoxon analyses use two-sided comparisons because the learning-rate analysis does not assume a direction before testing.
+```text
+0.01
+0.001
+0.0001
+```
 
-The three pairwise comparisons are:
+The three Wilcoxon comparisons are:
 
 ```text
 0.01 versus 0.001
@@ -613,17 +674,27 @@ The three pairwise comparisons are:
 0.001 versus 0.0001
 ```
 
-Holm-Bonferroni correction is applied across these three comparisons separately for each puzzle.
+Two-sided Wilcoxon signed-rank tests are used because the learning-rate analysis does not assume a direction before testing.
 
-For the two-sided tests, report:
+For each comparison, zero paired differences are removed before ranking, and tied absolute differences receive average ranks. The reported two-sided statistic is:
 
 ```text
 W = min(W+, W−)
 ```
 
-The corresponding archived results are reported in Tables 4–6.
+Holm-Bonferroni correction is applied across the three pairwise comparisons separately for each puzzle.
 
-### Training- and test-set analyses
+The corresponding archived results are reported in:
+
+```text
+Table 4: Friedman comparisons
+Table 5: AI Escargot Wilcoxon comparisons
+Table 6: Everest Wilcoxon comparisons
+```
+
+Because successive trials within each learning trajectory are serially dependent, these Friedman and Wilcoxon results are interpreted as exploratory.
+
+### Training- and Test-Set Analyses
 
 For:
 
@@ -634,7 +705,15 @@ test_data_counts.txt
 
 select the option that compares Count 1 with each later count column.
 
-Count 1 represents trial 0. The five later columns represent trials 10, 20, 30, 40, and 50.
+Count 1 represents trial 0. The later columns represent:
+
+```text
+trial 10
+trial 20
+trial 30
+trial 40
+trial 50
+```
 
 The directional hypothesis is:
 
@@ -654,16 +733,28 @@ and report the positive-rank statistic:
 W+
 ```
 
-Holm-Bonferroni correction is applied across the five checkpoint comparisons within each analysis.
+Zero paired differences are removed before ranking, and tied absolute differences receive average ranks.
+
+Holm-Bonferroni correction is applied across the five checkpoint comparisons separately for the training-set and test-set analyses.
 
 The corresponding archived results are reported in:
 
 ```text
-Table 8: training-data comparisons
-Table 10: held-out test-data comparisons
+Table 8: training-set comparisons
+Table 10: held-out test-set comparisons
 ```
 
-The exact Wilcoxon p-value calculation method used for the final manuscript must match the final archived version of `Friedman_and_Wilcoxon_tests.py` and the regenerated tables. Because count data can contain tied absolute differences and zero paired differences, the final archived documentation and program should not describe a p-value as mathematically exact unless the selected method validly accounts for those features.
+### P-Value Calculation
+
+Wilcoxon p-values are calculated using:
+
+```python
+scipy.stats.wilcoxon(..., method="exact")
+```
+
+The term `method="exact"` describes the SciPy program setting used for the archived analysis. When tied absolute differences are present, the resulting p-values should not be interpreted as mathematically exact permutation probabilities.
+
+Holm-Bonferroni correction is applied separately within each selected family of comparisons.
 
 ---
 
@@ -760,3 +851,4 @@ the manuscript Data and Code Availability statement
 ```
 
 The archived release should contain the final solver, scripts, fixed puzzle datasets, analysis-input files, tables, figures, pinned software dependencies, and this reproducibility document.
+
