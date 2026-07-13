@@ -1,3 +1,3 @@
 Puzzle           χ² Statistic    Degrees of Freedom    p-value       Interpretation
-AI Escargot             94.2                      2    < 0.0001     Nominally significant
-Everest                 91.8811                   2    < 0.0001     Nominally significant
+AI Escargot             94.2                      2    < 0.0001      Nominally significant
+Everest                 91.8811                   2    < 0.0001      Nominally significant
