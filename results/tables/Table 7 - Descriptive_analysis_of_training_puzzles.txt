@@ -1,5 +1,3 @@
-Training-Data Performance After Selected Trial Numbers
-
 Statistic                         Trial 0       Trial 10      Trial 20      Trial 30      Trial 40      Trial 50
 Minimum                           0             0             0             0             0             0
 Maximum                           164656        13873         12433         17186         22693         2388
