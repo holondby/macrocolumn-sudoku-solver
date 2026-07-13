@@ -47,7 +47,29 @@ macrocolumn-sudoku-solver/
 │   │   └── test_data_counts.txt
 │   │
 │   ├── tables/
+│   │   ├── Table 1 - Forced_puzzles.txt
+│   │   ├── Table 2 - AI_Escargot_descriptive_statistics.txt
+│   │   ├── Table 3 - Everest_descriptive_statistics.txt
+│   │   ├── Table 4 - Friedman_repeated-measures_comparison.txt
+│   │   ├── Table 5 - AI_Escargot_Wilcoxon_signed-rank_test_results.txt
+│   │   ├── Table 6 - Everest _Wilcoxon_signed-rank_test_results.txt
+│   │   ├── Table 7 - Descriptive_analysis_of_training_puzzles.txt
+│   │   ├── Table 8 - Pre-training_vs_post-training_comparison.txt
+│   │   ├── Table 9 - Descriptive_analysis_of_test_puzzles.txt
+│   │   └── Table 10 - Test_puzzle_ Wilcoxon_signed-rank_test_results.txt
+│   │
 │   └── figures/
+│       ├── Figure 1 - Cortical_minicolumn.png
+│       ├── Figure 2 - Simulated_macrocolumn_model.png
+│       ├── Figure 3 - AI_Escargot_puzzle.png
+│       ├── Figure 4 - Everest_puzzle.png
+│       ├── Figure 5 - AI_Escargot_learning _rate_comparison.png
+│       └── Figure 6 - Everest_learning_rate_comparison.png
+│
+└── docs/
+    └── reproducibility_notes.md
+```
+
 │
 └── docs/
     └── reproducibility_notes.md
