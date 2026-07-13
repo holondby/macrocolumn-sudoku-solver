@@ -4,7 +4,7 @@ This repository contains the source code, Sudoku puzzle data, fixed training/tes
 
 **David Yeo, “Learning to Search with a Simulated Cortical Macrocolumn.”**
 
-The project implements a biologically inspired macrocolumn reinforcement-learning Sudoku solver. A cortical-inspired action-value network is embedded within a depth-first-search procedure. Forced moves are propagated deterministically, while learned action values guide non-forced cell selection and digit ordering through soft winner-take-all competition and divisive normalization.
+The project implements a biologically inspired macrocolumn reinforcement-learning Sudoku solver. A cortical-inspired action-value network is embedded within a depth-first search procedure. Forced moves are propagated deterministically, while learned action values guide non-forced cell selection and digit ordering through soft winner-take-all competition and divisive normalization.
 
 Sudoku is used as a compact constraint-satisfaction testbed for evaluating whether the proposed architecture can learn useful search guidance.
 
@@ -85,9 +85,9 @@ The repository supports the following analyses:
 2. Learning-rate comparisons using AI Escargot and Everest.
 3. Training of the macrocolumn model on a fixed 75-puzzle training set.
 4. Evaluation on a fixed 25-puzzle held-out test set.
-5. Descriptive statistical and Shapiro-Wilk analyses.
+5. Descriptive statistical and Shapiro–Wilk analyses.
 6. Exploratory Friedman repeated-measures comparisons.
-7. Wilcoxon signed-rank comparisons with Holm-Bonferroni correction.
+7. Wilcoxon signed-rank comparisons with Holm–Bonferroni correction.
 8. Generation of the reported learning-rate figures.
 
 Backtrack count is the principal measure of search efficiency used in the manuscript.
@@ -122,13 +122,13 @@ Jupyter Notebook or JupyterLab is not required. The repository programs are stan
 
 Run all commands from the top-level repository directory.
 
-### Run the macrocolumn solver
+### 1. Run the macrocolumn solver
 
 ```bash
 python scripts/run_macrocolumn_solver.py
 ```
 
-This wrapper launches:
+This command-line wrapper launches the main macrocolumn Sudoku solver implemented in:
 
 ```text
 src/macrocolumn_solver.py
@@ -136,19 +136,19 @@ src/macrocolumn_solver.py
 
 The solver prompts for the puzzle directory, number of trials, and learning rate when training is requested.
 
-### Generate descriptive statistics
+### 2. Generate descriptive statistics
 
 ```bash
 python scripts/descriptive_statistics.py
 ```
 
-### Run Friedman and Wilcoxon analyses
+### 3. Run Friedman and Wilcoxon signed-rank analyses
 
 ```bash
 python scripts/Friedman_and_Wilcoxon_tests.py
 ```
 
-### Generate learning-rate plots
+### 4. Generate learning-rate plots
 
 ```bash
 python scripts/overlay_line_plot.py
@@ -194,7 +194,7 @@ data/README.md
 
 The `results/` directory contains the numerical analysis inputs, manuscript tables, and manuscript figures.
 
-### Analysis inputs
+### Analysis Inputs
 
 ```text
 results/analysis_inputs/
@@ -262,19 +262,19 @@ Version: 1.0.0
 DOI: To be added after Zenodo archival
 ```
 
-The final repository release should be archived through Zenodo, and the resulting DOI should be added to this README, `CITATION.cff`, and the manuscript’s Data and Code Availability statement.
+The final repository release should be archived through Zenodo. The resulting DOI should then be added to this README, `CITATION.cff`, and the manuscript’s Data and Code Availability statement.
 
 ---
 
 ## Citation
 
-Citation metadata are provided in:
+Citation metadata for the supporting code, data, and results archive are provided in:
 
 ```text
 CITATION.cff
 ```
 
-The manuscript should be cited separately from the supporting code, data, and results archive.
+The manuscript should be cited separately from the supporting repository archive.
 
 ---
 
@@ -303,4 +303,3 @@ ORCID: https://orcid.org/0009-0008-1226-3189
 
 **David Yeo**
 Email: [holondby@gmail.com](mailto:holondby@gmail.com)
-
