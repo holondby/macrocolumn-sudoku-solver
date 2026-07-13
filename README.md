@@ -1,14 +1,14 @@
 # Learning to Search with a Simulated Cortical Macrocolumn: Code, Data, and Results
 
-This repository contains the source code, Sudoku puzzle data, fixed train/test split, experiment scripts, numerical analysis inputs, and supporting analysis files associated with the manuscript:
+This repository contains the source code, Sudoku puzzle data, fixed training/test partition, analysis programs, numerical analysis inputs, tables, figures, and reproducibility documentation associated with the manuscript:
 
 **David Yeo, “Learning to Search with a Simulated Cortical Macrocolumn.”**
 
-The project implements a biologically inspired macrocolumn reinforcement-learning Sudoku solver. A cortical-inspired action-value network is embedded within a depth-first search procedure. Forced Sudoku moves are propagated deterministically, while non-forced branching decisions are guided by learned action-value estimates, soft winner-take-all competition, and divisive normalization.
+The project implements a biologically inspired macrocolumn reinforcement-learning Sudoku solver. A cortical-inspired action-value network is embedded within a depth-first-search procedure. Forced Sudoku moves are propagated deterministically, while non-forced branching decisions are guided by learned action-value estimates, soft winner-take-all competition, and divisive normalization.
 
 Sudoku is used as a compact constraint-satisfaction testbed for evaluating whether the proposed architecture can learn useful search guidance.
 
-The repository is intended to support transparency and reproducibility for journal review and publication.
+The repository is intended to support transparency, inspection, and reproducibility for journal review and publication.
 
 ---
 
@@ -19,6 +19,7 @@ The repository is organized as follows:
 ```text
 macrocolumn-sudoku-solver/
 │
+├── .gitignore
 ├── README.md
 ├── CITATION.cff
 ├── LICENSE
@@ -31,8 +32,7 @@ macrocolumn-sudoku-solver/
 ├── scripts/
 │   ├── run_macrocolumn_solver.py
 │   ├── descriptive_statistics.py
-│   ├── Friedman_chi_square_test.py
-│   ├── Wilcoxon_signed_rank_test.py
+│   ├── Friedman_and_Wilcoxon_tests.py
 │   └── overlay_line_plot.py
 │
 ├── data/
@@ -41,38 +41,43 @@ macrocolumn-sudoku-solver/
 │   ├── training_data/
 │   └── test_data/
 │
-results/
-│
-├── analysis_inputs/
-│   ├── AI_Escargot_learning_rate_counts.txt
-│   ├── Everest_learning_rate_counts.txt
-│   └── test_set_checkpoint_backtrack_counts.txt
-│
-├── tables/
-│   ├── Table 1 - Forced_puzzles.txt
-│   ├── Table 2 - AI_Escargot_descriptive_statistics.txt
-│   ├── Table 3 - Everest_descriptive_statistics.txt
-│   ├── Table 4 - Friedman_repeated_measures_comparison.txt
-│   ├── Table 5 - AI_Escargot_Wilcoxon_signed_rank_test_results.txt
-│   ├── Table 6 - Everest_Wilcoxon_signed_rank_test_results.txt
-│   ├── Table 7 - Descriptive_Analysis_of_training_puzzles.txt
-│   ├── Table 8 - Pre-training_vs_post-training_comparsion.txt
-│   ├── Table 9 - Descriptive_analysis_of_test_puzzles.txt
-│   └── Table 10 - Test_puzzle_Wilcoxon_signed_rank_test_results.txt
-│
-└── figures/
-|   ├── Figure 1 - Cortical_minicolumn.png
-|   ├── Figure 2 - Simulated_macrocolumn_model.png
-|   ├── Figure 3 - AI_Escargot_puzzle.png
-|   ├── Figure 4 - Everest_puzzle.png
-|   ├── Figure 5 - AI_Escargot_learning _rate_comparison.png
-|   └── Figure 6 - Everest_learning_rate_comparison.png
+├── results/
+│   ├── analysis_inputs/
+│   │   ├── README.md
+│   │   ├── ai_escargot_counts.txt
+│   │   ├── everest_counts.txt
+│   │   ├── training_data_counts.txt
+│   │   └── test_data_counts.txt
+│   │
+│   ├── tables/
+│   │   ├── Table 1 - Forced_puzzles.txt
+│   │   ├── Table 2 - AI_Escargot_descriptive_statistics.txt
+│   │   ├── Table 3 - Everest_descriptive_statistics.txt
+│   │   ├── Table 4 - Friedman_repeated-measures_comparison.txt
+│   │   ├── Table 5 - AI_Escargot_Wilcoxon_signed-rank_test_results.txt
+│   │   ├── Table 6 - Everest _Wilcoxon_signed-rank_test_results.txt
+│   │   ├── Table 7 - Descriptive_analysis_of_training_puzzles.txt
+│   │   ├── Table 8 - Pre-training_vs_post-training_comparison.txt
+│   │   ├── Table 9 - Descriptive_analysis_of_test_puzzles.txt
+│   │   └── Table 10 - Test_puzzle_ Wilcoxon_signed-rank_test_results.txt
+│   │
+│   └── figures/
+│       ├── Figure 1 - Cortical_minicolumn.png
+│       ├── Figure 2 - Simulated_macrocolumn_model.png
+│       ├── Figure 3 - AI_Escargot_puzzle.png
+│       ├── Figure 4 - Everest_puzzle.png
+│       ├── Figure 5 - AI_Escargot_learning _rate_comparison.png
+│       └── Figure 6 - Everest_learning_rate_comparison.png
 │
 └── docs/
     └── reproducibility_notes.md
 ```
 
-Detailed experimental and reproduction procedures are provided in `docs/reproducibility_notes.md`.
+Detailed experimental procedures and reproduction instructions are provided in:
+
+```text
+docs/reproducibility_notes.md
+```
 
 ---
 
@@ -82,69 +87,88 @@ The proposed solver learns while solving. A cortical-inspired macrocolumn action
 
 The model combines:
 
-* an action space of 9 × 9 × 9 = 729 possible cell-digit assignments;
+* a 9 × 9 × 9 action space representing 729 possible cell-digit assignments;
 * deterministic propagation of forced moves;
 * learned selection of non-forced branching cells;
 * greedy ordering of admissible digits by estimated action value;
-* multiple competing minicolumn pathways;
+* fixed-ε exploration of the first attempted digit during training;
+* multiple competing recurrent minicolumn pathways;
 * divisive normalization;
 * soft winner-take-all competition;
-* potential-shaped learning targets;
+* potential-shaped TD(λ) learning targets;
 * depth-first search with backtracking.
 
 The primary performance measure reported in the manuscript is **backtrack count**, representing search effort spent pursuing branches that must subsequently be undone.
 
-The central research question concerns the learning architecture rather than Sudoku itself. Sudoku provides a structured search domain in which forced moves can be propagated deterministically and learned guidance can be evaluated at non-forced branching decisions.
+The central research question concerns the learning architecture rather than Sudoku itself. Sudoku provides a structured domain in which forced moves can be propagated deterministically and learned guidance can be evaluated at non-forced branching decisions.
 
 ---
 
 ## Main Experimental Components
 
-The repository contains the code, data, and analysis materials associated with the following manuscript experiments:
+The repository contains code, data, and analysis materials associated with:
 
 1. Identification of forced-solution Sudoku puzzles.
-2. Learning-rate comparison using the AI Escargot and Everest Sudoku puzzles.
+2. Learning-rate comparisons using the AI Escargot and Everest puzzles.
 3. Training of the macrocolumn model on a fixed 75-puzzle training set.
 4. Evaluation of saved training checkpoints on a fixed 25-puzzle held-out test set.
-5. Descriptive statistical analysis, Friedman tests, Wilcoxon signed-rank comparisons, Holm-Bonferroni corrections, and generation of learning-rate figures.
+5. Descriptive statistical analyses and Shapiro-Wilk tests.
+6. Exploratory Friedman repeated-measures comparisons.
+7. Wilcoxon signed-rank comparisons with Holm-Bonferroni correction.
+8. Generation of the learning-rate comparison figures.
 
-Detailed experimental settings and procedures are described in `docs/reproducibility_notes.md`.
+The learning-rate stress tests use 50 learning trials. The prior-experience experiment uses 50 training trials, with results evaluated at trials 0, 10, 20, 30, 40, and 50.
+
+Detailed experimental settings are provided in:
+
+```text
+docs/reproducibility_notes.md
+```
 
 ---
 
 ## Software Requirements
 
-The code is written in Python. The programs were originally developed and run in an Anaconda Jupyter environment, but the repository version is provided as standard Python `.py` files for command-line execution.
+The code is written in Python and uses:
 
-The solver and analysis scripts use external Python packages including NumPy, pandas, SciPy, matplotlib, and TensorFlow.
-
-A recommended setup is to create a dedicated conda environment:
-
-```bash
-conda create -n macrocolumn-sudoku python=3.10
+```text
+NumPy
+pandas
+SciPy
+Matplotlib
+TensorFlow/Keras
 ```
 
-Activate the environment:
+The required packages are listed in:
 
-```bash
-conda activate macrocolumn-sudoku
+```text
+requirements.txt
 ```
 
-Install the required packages:
+A Python virtual environment can be created on Windows with:
 
 ```bash
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The required Python packages are listed in `requirements.txt`.
+On macOS or Linux, activate the environment with:
 
-Jupyter Notebook or JupyterLab is not required to run the repository programs.
+```bash
+source .venv/bin/activate
+```
+
+The final archived `requirements.txt` should record the exact package versions used to generate the reported results.
+
+Jupyter Notebook or JupyterLab is not required. The repository programs are standard Python `.py` files that can be executed from a command prompt or terminal.
 
 ---
 
 ## Running the Programs
 
-Run the programs from the top-level repository directory.
+Run all programs from the top-level repository directory.
 
 ### 1. Run the macrocolumn solver
 
@@ -152,17 +176,25 @@ Run the programs from the top-level repository directory.
 python scripts/run_macrocolumn_solver.py
 ```
 
-This command-line wrapper launches the main macrocolumn Sudoku solver implemented in:
+This command-line wrapper launches the main solver implemented in:
 
 ```text
 src/macrocolumn_solver.py
 ```
 
-The solver prompts for the puzzle directory and run parameters required for the selected experiment.
+The solver prompts for:
 
-The same solver implementation is used for training and evaluation. For held-out test-set evaluation, learning and exploration are disabled so that performance reflects the saved learned model state rather than continued training or random exploration.
+* the directory containing the puzzle or puzzles;
+* the number of training trials;
+* the learning rate when training is requested.
 
-Detailed parameter settings for the manuscript experiments are provided in `docs/reproducibility_notes.md`.
+Entering `0` for the number of trials evaluates the current model with learning and exploration disabled and then exits.
+
+The same solver implementation is used for training and evaluation. Detailed parameter settings, checkpoint procedures, and experimental instructions are provided in:
+
+```text
+docs/reproducibility_notes.md
+```
 
 ### 2. Generate descriptive statistics
 
@@ -170,15 +202,23 @@ Detailed parameter settings for the manuscript experiments are provided in `docs
 python scripts/descriptive_statistics.py
 ```
 
-The program prompts for a TXT filename or full file path and computes descriptive statistics and Shapiro-Wilk normality-test results for the numerical columns in the supplied file.
+The program prompts for a TXT filename or full file path. It excludes column 0 from the outcome analysis and calculates descriptive statistics and Shapiro-Wilk normality-test results for the remaining numerical columns.
 
-### 3. Run Friedman and Wilcoxon signed-rank analyses
+### 3. Run Friedman and Wilcoxon analyses
 
 ```bash
-python scripts/Wilcoxon_signed_rank_test.py
+python scripts/Friedman_and_Wilcoxon_tests.py
 ```
 
-The program prompts for a TXT filename or full file path containing matched numerical observations. It performs a Friedman omnibus test when at least three related conditions are supplied and performs pairwise Wilcoxon signed-rank comparisons with Holm-Bonferroni correction.
+The program prompts for a TXT filename or full file path containing matched numerical observations.
+
+It can:
+
+* perform a Friedman comparison when at least three matched conditions are supplied;
+* compare all numerical columns pairwise;
+* compare the first numerical column only with each later column;
+* calculate two-sided and directional Wilcoxon signed-rank results;
+* apply Holm-Bonferroni correction within each selected family of comparisons.
 
 ### 4. Generate overlay line plots
 
@@ -186,9 +226,21 @@ The program prompts for a TXT filename or full file path containing matched nume
 python scripts/overlay_line_plot.py
 ```
 
-The program prompts for a TXT filename or full file path containing trial numbers and backtrack counts for learning rates 0.01, 0.001, and 0.0001. It generates an overlay line plot and saves the plot as a PNG file.
+The program prompts for a TXT filename or full file path containing trial numbers and backtrack counts for learning rates:
 
-The numerical files used for the reported analyses are archived in `results/analysis_inputs/`.
+```text
+0.01
+0.001
+0.0001
+```
+
+It generates and saves an overlay line plot as a PNG file.
+
+The numerical files used for the reported analyses are archived in:
+
+```text
+results/analysis_inputs/
+```
 
 ---
 
@@ -206,19 +258,11 @@ Additional information about the puzzle files and dataset organization is provid
 data/README.md
 ```
 
-The data directories are:
-
-```text
-data/Inkala_data/
-data/training_data/
-data/test_data/
-```
-
 ### `data/Inkala_data/`
 
-This directory contains the difficult Sudoku puzzles used for the learning-rate comparison experiments, specifically AI Escargot and Everest.
+This directory contains the AI Escargot and Everest puzzles used for the learning-rate stress tests.
 
-The puzzles were used to compare learning rates of:
+Each puzzle was evaluated across 50 learning trials using learning rates:
 
 ```text
 0.01
@@ -226,23 +270,29 @@ The puzzles were used to compare learning rates of:
 0.0001
 ```
 
-across the first 50 learning trials.
-
 ### `data/training_data/`
 
 This directory contains the fixed 75-puzzle training set used for the prior-experience experiment.
 
-During training, the solver learns across the supplied puzzle directory. The training-puzzle order is shuffled after each completed trial using the fixed seeded random-number procedure.
+The first training trial begins with puzzles in case-insensitive filename order. The file names can therefore be used to specify the initial sequence, such as easy to hard. After each completed trial, the puzzle order is shuffled using Python’s seeded random-number generator.
 
-Training is performed using the experimental settings described in `docs/reproducibility_notes.md`.
+The reported 50-trial training sequence was conducted in consecutive 10-trial increments within the same running program session, preserving the learned model state and evolving puzzle-order sequence.
 
 ### `data/test_data/`
 
 This directory contains the fixed 25-puzzle held-out test set.
 
-The test puzzles are not used for parameter updates during training. Held-out evaluation is conducted with learning disabled and exploration disabled.
+The test puzzles are not used for parameter updates during training. Held-out evaluation is conducted with:
 
-The untrained trial-0 baseline and saved training checkpoints are evaluated on the same fixed test set.
+```text
+learning disabled
+exploration disabled
+epsilon = 0
+```
+
+The newly initialized trial-0 model and the trial-10, 20, 30, 40, and 50 checkpoints are evaluated on the same fixed test set.
+
+The supplied training/test partition should not be regenerated when reproducing the reported experiment.
 
 ---
 
@@ -256,23 +306,50 @@ results/
 
 ### `results/analysis_inputs/`
 
-This directory contains the numerical TXT files used as input to the analysis scripts.
+This directory contains the numerical, whitespace-separated TXT files used as inputs to the analysis programs:
 
-The solver reports relevant performance counts during execution. Where the solver reports counts to the screen rather than writing them directly to a file, the numerical counts used in the manuscript analyses were manually transcribed into the archived TXT analysis-input files.
+```text
+ai_escargot_counts.txt
+everest_counts.txt
+training_data_counts.txt
+test_data_counts.txt
+```
 
-These files preserve the numerical values used for the reported statistical analyses and figures.
+The solver originally displayed the relevant performance counts on the console. The counts used for the manuscript analyses were manually transcribed into these archived analysis-input files.
+
+The files preserve the numerical values used to generate the reported statistical summaries and learning-rate figures. They are direct analysis inputs, but they are not unedited console logs.
+
+The format of each file is documented in:
+
+```text
+results/analysis_inputs/README.md
+```
 
 ### `results/tables/`
 
-This directory contains archived statistical summaries and test results associated with the manuscript analyses.
+This directory contains the ten archived manuscript tables:
 
-These materials may include descriptive statistics, Friedman test results, Wilcoxon signed-rank results, and Holm-Bonferroni-adjusted comparisons.
+* forced-puzzle results;
+* AI Escargot and Everest descriptive statistics;
+* exploratory Friedman results;
+* AI Escargot and Everest Wilcoxon results;
+* training-set descriptive and Wilcoxon results;
+* held-out test-set descriptive and Wilcoxon results.
 
 ### `results/figures/`
 
-This directory contains figures associated with the reported experiments, including learning-rate comparison plots.
+This directory contains the six manuscript figures:
 
-The analysis-input files required to reproduce the figures are provided in `results/analysis_inputs/`.
+* the cortical minicolumn illustration;
+* the simulated macrocolumn model;
+* the AI Escargot and Everest puzzles;
+* the AI Escargot and Everest learning-rate comparison plots.
+
+The numerical inputs used to generate Figures 5 and 6 are provided in:
+
+```text
+results/analysis_inputs/
+```
 
 ---
 
@@ -284,15 +361,39 @@ The experiments use the fixed random seed:
 SEED = 121252
 ```
 
-The prior-experience experiment uses a fixed 75-puzzle training set and a fixed 25-puzzle held-out test set. The supplied train/test partition should be preserved when reproducing the reported experiment.
+The seed is applied to Python, NumPy, and TensorFlow where supported.
 
-Detailed reproduction instructions, including the learning-rate experiments, training procedure, checkpoint evaluations, trial-0 baseline, and held-out test procedure, are provided in:
+The prior-experience experiment uses:
+
+```text
+75 training puzzles
+25 held-out test puzzles
+learning rate = 0.0001
+training trials = 50
+```
+
+The reported checkpoints are:
+
+```text
+trial 0
+trial 10
+trial 20
+trial 30
+trial 40
+trial 50
+```
+
+For held-out evaluation, learning and exploration are disabled so that performance reflects the selected model checkpoint rather than continued training or random exploration.
+
+Detailed reproduction instructions—including model parameters, puzzle ordering, checkpoint handling, learning-rate experiments, statistical procedures, and held-out evaluation—are provided in:
 
 ```text
 docs/reproducibility_notes.md
 ```
 
-Because neural-network execution can depend on software versions, numerical libraries, hardware, and TensorFlow configuration, exact numerical replication on a different system may vary. The archived analysis-input files preserve the numerical results used for the statistical analyses and figures reported in the manuscript.
+Neural-network results can depend on software versions, numerical libraries, hardware, and TensorFlow configuration. Exact numerical replication may therefore vary across systems.
+
+The archived analysis-input files preserve the numerical values used for the statistical analyses and figures reported in the manuscript.
 
 ---
 
@@ -304,10 +405,10 @@ The repository version intended for archival with the manuscript is:
 Version: 1.0.0
 ```
 
-The Zenodo DOI will be added after archival.
+The Zenodo DOI will be added after archival:
 
 ```text
-DOI: To be added after Zenodo archival.
+DOI: To be added after Zenodo archival
 ```
 
 ---
@@ -320,7 +421,7 @@ Citation metadata are provided in:
 CITATION.cff
 ```
 
-After the repository is archived through Zenodo and a DOI is assigned, the DOI and final archival citation should be added to this README and the citation metadata updated as required.
+After the repository is archived through Zenodo and a DOI is assigned, the DOI and final archival citation should be added to this README and to `CITATION.cff`.
 
 The manuscript should be cited separately from the supporting code, data, and results archive.
 
@@ -328,36 +429,48 @@ The manuscript should be cited separately from the supporting code, data, and re
 
 ## License
 
-The source code is released under the MIT License. See `LICENSE` for details.
+The source code is released under the MIT License. See:
 
-The data and result files are provided to support inspection and reproduction of the experiments associated with the manuscript.
+```text
+LICENSE
+```
+
+The puzzle data, tables, and figures are provided to support inspection and reproduction of the experiments associated with the manuscript. Any externally sourced data or figures remain subject to their original attribution and reuse terms.
 
 ---
 
 ## Author
 
-David Yeo
-
+**David Yeo**
 Independent Researcher
-
 Peterborough, Ontario, Canada
-
 ORCID: https://orcid.org/0009-0008-1226-3189
 
 ---
 
 ## Contact
 
-For questions about the repository or the associated manuscript, contact:
+For questions about the repository or associated manuscript:
 
-David Yeo
-
+**David Yeo**
 Email: [holondby@gmail.com](mailto:holondby@gmail.com)
 
 ---
 
 ## Notes for Reviewers
 
-This repository provides the solver implementation, experimental scripts, fixed puzzle datasets, numerical analysis inputs, and supporting statistical and figure materials associated with the manuscript.
+This repository provides:
 
-Detailed reproduction procedures are provided in `docs/reproducibility_notes.md`.
+* the macrocolumn Sudoku solver;
+* the fixed puzzle datasets and training/test partition;
+* the statistical and plotting programs;
+* the numerical analysis-input files;
+* the manuscript tables and figures;
+* detailed reproducibility documentation.
+
+Complete experimental and analysis procedures are provided in:
+
+```text
+docs/reproducibility_notes.md
+```
+
