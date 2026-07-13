@@ -4,7 +4,9 @@ This document describes the computational procedures and analyses associated wit
 
 **David Yeo, “Learning to Search with a Simulated Cortical Macrocolumn.”**
 
-The root `README.md` provides the repository overview, installation instructions, program entry points, directory structure, citation information, licensing information, and archival status. This document focuses on the exact model configuration, experimental procedures, checkpoint handling, data formats, and statistical analyses used for the manuscript.
+The root `README.md` provides the repository overview, installation instructions, program entry points, directory structure, citation information, licensing information, and archival status.
+
+This document focuses on the model configuration, experimental procedures, checkpoint handling, data formats, and statistical analyses used for the manuscript.
 
 ---
 
@@ -43,7 +45,7 @@ results/tables/
 results/figures/
 ```
 
-The formats of the archived analysis-input files are also summarized in:
+The formats and purposes of the archived analysis-input files are also summarized in:
 
 ```text
 results/analysis_inputs/README.md
@@ -69,9 +71,24 @@ The required packages are listed in:
 requirements.txt
 ```
 
-For the final archived release, `requirements.txt` should record the exact package versions used to generate the reported results. The exact Python version, operating system, and CPU or GPU execution environment should also be recorded.
+For the final archived release, `requirements.txt` should record the exact package versions used to generate the reported results.
 
-Because TensorFlow and SciPy behaviour can vary across versions, the closest reproduction is expected when the archived software environment is used.
+The archived software environment should be recorded as follows:
+
+```text
+Python version: [enter the exact Python version]
+Operating system: [enter the operating system and version]
+Execution environment: [enter CPU or GPU and relevant device information]
+```
+
+The package versions can be obtained from the original environment using:
+
+```bash
+python --version
+python -m pip show numpy pandas scipy matplotlib tensorflow
+```
+
+Because TensorFlow and SciPy behaviour can vary across versions, the closest numerical reproduction is expected when the archived Python and package versions are used.
 
 The repository programs are standard Python `.py` files. Jupyter Notebook or JupyterLab is not required.
 
@@ -107,7 +124,7 @@ The resulting fixed partition contains:
 25 held-out test puzzles
 ```
 
-The supplied training and test directories represent the partition used for the manuscript. The split should not be regenerated when reproducing the reported experiment.
+The supplied training and test directories contain the partition used for the manuscript. The partition should not be regenerated when reproducing the reported experiment.
 
 ---
 
@@ -138,17 +155,17 @@ Its structure is:
 
 ```text
 Conv2D:
-36 filters
-3 × 3 kernel
-ReLU activation
-same padding
+    36 filters
+    3 × 3 kernel
+    ReLU activation
+    same padding
 
 Conv2D:
-36 filters
-3 × 3 kernel
-stride = 2
-ReLU activation
-valid padding
+    36 filters
+    3 × 3 kernel
+    stride = 2
+    ReLU activation
+    valid padding
 
 Reshape to a 16 × 36 sequence
 Layer normalization
@@ -168,7 +185,9 @@ N_LAYERS = 3
 DENSE_UNITS = 30
 ```
 
-Thus, each minicolumn consists of one LSTM layer with 10 units followed by three Dense layers with 30 ReLU units each. Its capacity score is:
+Thus, each minicolumn consists of one LSTM layer with 10 units followed by three Dense layers with 30 ReLU units each.
+
+Its capacity score is:
 
 ```text
 10 + (3 × 30) = 100
@@ -245,7 +264,7 @@ The cache stores predicted Q-values for previously encountered Sudoku states dur
 
 ### Runtime Defaults
 
-The current program defaults are:
+The program defaults used for the reported runs are:
 
 ```text
 SHOW_MOVES = False
@@ -259,7 +278,9 @@ CKPT_PREFIX = "macrocolumn_model"
 
 The solver combines deterministic constraint propagation, learned branching decisions, and depth-first search.
 
-Forced cells with only one legal digit are filled deterministically. Forced nonterminal moves are not learned separately. If a forced sequence ends in success or contradiction, only the final move receives a learning target.
+Forced cells with only one legal digit are filled deterministically. Forced nonterminal moves are not learned as separate transitions.
+
+If a forced sequence ends in success or contradiction, only the final move receives a learning target.
 
 At a non-forced decision state, the network estimates action values for legal cell-digit assignments. Legal-digit values are reduced to cell-level drives, and candidate cells compete through soft winner-take-all activity and divisive normalization.
 
@@ -312,7 +333,13 @@ Backtrack count
 
 Backtrack count is the primary outcome analyzed in the manuscript.
 
-A Keras checkpoint is saved after each completed training trial. Checkpoint filenames have the form:
+The solver displays its results on the console. The numerical values used for the manuscript were manually transcribed into the archived analysis-input files described in Section 9.
+
+### Checkpoint Files
+
+A Keras checkpoint is saved after each completed training trial.
+
+Checkpoint filenames have the form:
 
 ```text
 macrocolumn_model (1).keras
@@ -321,29 +348,33 @@ macrocolumn_model (3).keras
 ...
 ```
 
-When training or evaluation begins, the solver searches the current working directory for matching checkpoints and loads the checkpoint with the highest numerical suffix.
+When training or evaluation begins, the solver searches the current working directory for matching checkpoint files and loads the checkpoint with the highest numerical suffix.
 
 If no matching checkpoint is present, the solver creates a newly initialized model using the fixed seed.
 
 To preserve experimental independence:
 
-* remove or relocate existing checkpoints before generating a newly initialized trial-0 baseline;
-* retain the latest checkpoint when continuing the same training sequence;
-* do not reuse a checkpoint from a different learning-rate condition;
-* isolate the intended checkpoint when evaluating a particular training trial;
-* use separate working directories when necessary.
+* Remove or relocate existing checkpoints before generating a newly initialized trial-0 baseline.
+* Retain the latest checkpoint when continuing the same training sequence.
+* Do not reuse a checkpoint from a different learning-rate condition.
+* Isolate the intended checkpoint when evaluating a particular training trial.
+* Use separate working directories when necessary.
 
-For the prior-experience experiment, training was conducted in consecutive 10-trial increments. These increments were successive stages of one continuing 50-trial sequence, not five independent experiments. The learned model state was carried forward between increments.
+For the prior-experience experiment, training was conducted in consecutive 10-trial increments.
 
-The same running program session was continued between increments, preserving both the learned model state and the evolving puzzle-order sequence.
+These increments were successive stages of one continuing 50-trial sequence, not five independent experiments. The learned model state was carried forward between increments.
+
+The same continuing training sequence must be preserved when reproducing the reported checkpoints.
 
 ### Puzzle Ordering
 
-The first training trial begins with the puzzles in case-insensitive filename order. This permits a user-specified initial sequence, such as easy to hard, by naming the puzzle files so that they sort in the intended order.
+The first training trial begins with the puzzles in filename order.
+
+This permits a user-specified initial sequence, such as easy to hard, by naming the puzzle files so that they sort in the intended order.
 
 After each completed training trial, the puzzle list is shuffled using Python’s seeded random-number generator.
 
-Held-out evaluations process the test puzzles in case-insensitive filename order.
+Held-out evaluations process the test puzzles in filename order.
 
 ---
 
@@ -357,7 +388,9 @@ AI Escargot and Everest were each evaluated over 50 learning trials using:
 0.0001
 ```
 
-Each puzzle and learning-rate condition begins from a newly initialized model state. A checkpoint created under one learning rate must not be loaded for another condition.
+Each puzzle and learning-rate condition begins from a newly initialized model state.
+
+A checkpoint created under one learning rate must not be loaded for another learning-rate condition.
 
 The observations are matched by trial number:
 
@@ -377,10 +410,10 @@ results/analysis_inputs/everest_counts.txt
 These files support:
 
 * descriptive statistics;
-* Shapiro-Wilk normality tests;
+* Shapiro–Wilk normality tests;
 * exploratory Friedman repeated-measures comparisons;
 * exploratory pairwise Wilcoxon signed-rank comparisons;
-* Holm-Bonferroni corrections;
+* Holm–Bonferroni corrections; and
 * learning-rate overlay plots.
 
 Because successive observations within each learning trajectory are serially dependent, the Friedman and Wilcoxon results are interpreted as exploratory rather than as independent confirmatory tests.
@@ -454,7 +487,9 @@ The files in `results/analysis_inputs/` are headerless, whitespace-separated tex
 
 Column 0 is an identifier and is excluded from the numerical outcome analyses. Zeros are valid backtrack counts and must not be treated as missing values.
 
-The solver originally displayed the relevant counts on the console. The values used for the manuscript were manually transcribed into the archived analysis-input files. These files are therefore the direct numerical inputs to the reported analyses, but they are not unedited console logs.
+The solver originally displayed the relevant performance counts on the console. The values used for the manuscript were manually transcribed into the archived analysis-input files.
+
+These files are therefore the direct numerical inputs to the reported analyses, but they are not unedited console logs.
 
 ### `ai_escargot_counts.txt`
 
@@ -498,9 +533,17 @@ column 5: trial-40 backtrack count
 column 6: trial-50 backtrack count
 ```
 
+Further descriptions of these files and their corresponding tables and figures are provided in:
+
+```text
+results/analysis_inputs/README.md
+```
+
 ---
 
 ## 10. Analysis Procedures
+
+Run all analysis programs from the top-level repository directory.
 
 ### Descriptive Statistics
 
@@ -510,7 +553,9 @@ Run:
 python scripts/descriptive_statistics.py
 ```
 
-The program requests a TXT filename or full file path. It excludes column 0 and calculates:
+The program requests a TXT filename or full file path.
+
+It excludes column 0 and calculates:
 
 ```text
 minimum
@@ -519,8 +564,8 @@ mean
 median
 population standard deviation
 median absolute deviation
-Shapiro-Wilk W
-Shapiro-Wilk p-value
+Shapiro–Wilk W
+Shapiro–Wilk p-value
 ```
 
 The population standard deviation uses:
@@ -563,7 +608,7 @@ The program excludes column 0 and treats columns 1 onward as matched count condi
 It permits either:
 
 ```text
-1. all count columns to be compared pairwise; or
+1. Every count column to be compared with every other count column.
 2. Count 1 to be compared only with each later count column.
 ```
 
@@ -576,7 +621,7 @@ ai_escargot_counts.txt
 everest_counts.txt
 ```
 
-select all pairwise comparisons.
+select the option that compares every count column with every other count column.
 
 The Friedman test compares the three matched learning-rate trajectories:
 
@@ -604,7 +649,7 @@ The reported two-sided statistic is:
 W = min(W+, W−)
 ```
 
-Holm-Bonferroni correction is applied across the three comparisons separately for each puzzle.
+Holm–Bonferroni correction is applied across the three comparisons separately for each puzzle.
 
 The corresponding results are:
 
@@ -655,7 +700,7 @@ W+
 
 Zero paired differences are removed before ranking, and tied absolute differences receive average ranks.
 
-Holm-Bonferroni correction is applied across the five checkpoint comparisons separately for the training-set and test-set analyses.
+Holm–Bonferroni correction is applied across the five checkpoint comparisons separately for the training-set and test-set analyses.
 
 The corresponding results are:
 
@@ -672,9 +717,11 @@ Wilcoxon p-values are calculated using:
 scipy.stats.wilcoxon(..., method="exact")
 ```
 
-The term `method="exact"` describes the SciPy setting used for the archived analysis. When tied absolute differences are present, the resulting p-values should not be interpreted as mathematically exact permutation probabilities.
+The term `method="exact"` describes the SciPy setting used for the archived analysis.
 
-Holm-Bonferroni correction is applied separately within each selected family of comparisons.
+When tied absolute differences are present, the resulting p-values should not be interpreted as mathematically exact permutation probabilities.
+
+Holm–Bonferroni correction is applied separately within each selected family of comparisons.
 
 ### Learning-Rate Figures
 
@@ -690,7 +737,9 @@ Use:
 results/analysis_inputs/ai_escargot_counts.txt
 ```
 
-to generate Figure 5, and:
+to generate Figure 5.
+
+Use:
 
 ```text
 results/analysis_inputs/everest_counts.txt
@@ -711,37 +760,44 @@ column 3: learning rate 0.0001
 
 ## 11. Interpretation of the Analyses
 
-The learning-rate observations form serial learning trajectories because each trial continues from the model state produced by preceding trials. The Friedman and Wilcoxon learning-rate comparisons are therefore exploratory.
+The learning-rate observations form serial learning trajectories because each trial continues from the model state produced by preceding trials.
+
+The Friedman and Wilcoxon learning-rate comparisons are therefore exploratory.
 
 The training-set Wilcoxon comparisons assess whether backtrack counts decreased relative to the untrained trial-0 model on puzzles used during training.
 
 The held-out test-set comparisons assess whether learned search guidance transferred to puzzles that were not used for parameter updates.
 
-The held-out results did not remain statistically significant after Holm-Bonferroni correction. They should therefore be interpreted as a preliminary transfer trend rather than as conclusive evidence of generalization.
+The held-out results did not remain statistically significant after Holm–Bonferroni correction. They should therefore be interpreted as a preliminary transfer trend rather than as conclusive evidence of generalization.
 
 ---
 
 ## 12. Numerical Reproducibility
 
-The fixed seed is used for Python, NumPy, and TensorFlow where possible. Exact neural-network results may nevertheless vary because of:
+The fixed seed is used for Python, NumPy, and TensorFlow where possible.
+
+Exact neural-network results may nevertheless vary because of:
 
 * Python and package versions;
 * operating system;
 * processor or graphics hardware;
 * CPU or GPU execution;
 * TensorFlow kernels;
-* parallel numerical operations;
+* parallel numerical operations; and
 * nondeterministic low-level implementations.
 
 For the closest reproduction:
 
 1. Use the exact archived Python and package versions.
 2. Use the supplied Sudoku files without changing the training/test partition.
-3. Preserve the fixed seed.
+3. Preserve the fixed random seed.
 4. Keep checkpoints from different experimental conditions separate.
 5. Follow the checkpoint-loading and puzzle-order procedures exactly.
-6. Continue the 10-trial training increments within the same running session.
+6. Continue the 10-trial training increments as one continuing training sequence.
 7. Disable learning and exploration during held-out evaluation.
 8. Use the archived analysis-input files when reproducing the manuscript’s statistical tables and figures.
 
-The analysis-input files provide the direct numerical basis for the reported analyses. Re-running neural-network training evaluates procedural reproducibility but may not produce bit-for-bit identical learning trajectories on a different software or hardware environment.
+The analysis-input files provide the direct numerical basis for the reported analyses.
+
+Re-running neural-network training evaluates procedural reproducibility but may not produce bit-for-bit identical learning trajectories on a different software or hardware environment.
+
