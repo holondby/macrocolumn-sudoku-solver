@@ -1,4 +1,5 @@
 cff-version: 1.2.0
+
 message: "If you use this code, data, or results archive, please cite it as below."
 
 title: "Learning to Search with a Simulated Cortical Macrocolumn: Code, Data, and Results"
@@ -6,10 +7,9 @@ title: "Learning to Search with a Simulated Cortical Macrocolumn: Code, Data, an
 type: software
 
 authors:
-
-* family-names: "Yeo"
-  given-names: "David"
-  orcid: "https://orcid.org/0009-0008-1226-3189"
+  - family-names: "Yeo"
+    given-names: "David"
+    orcid: "https://orcid.org/0009-0008-1226-3189"
 
 repository-code: "https://github.com/holondby/macrocolumn-sudoku-solver"
 
@@ -18,11 +18,10 @@ version: "1.0.0"
 license: "MIT"
 
 keywords:
-
-* macrocolumn
-* reinforcement learning
-* deep learning
-* constraint satisfaction
-* Sudoku
-* divisive normalization
-* soft winner-take-all
+  - macrocolumn
+  - reinforcement learning
+  - deep learning
+  - constraint satisfaction
+  - Sudoku
+  - divisive normalization
+  - soft winner-take-all
