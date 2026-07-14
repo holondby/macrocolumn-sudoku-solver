@@ -65,30 +65,61 @@ Matplotlib
 TensorFlow/Keras
 ```
 
-The required packages are listed in:
+The exact package versions recorded for the archived environment are:
+
+```text
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+matplotlib==3.10.7
+tensorflow==2.16.1
+```
+
+These versions are pinned in:
 
 ```text
 requirements.txt
 ```
 
-For the final archived release, `requirements.txt` should record the exact package versions used to generate the reported results.
-
-The archived software environment should be recorded as follows:
+The software and hardware environment reported by the environment-checking program is:
 
 ```text
-Python version: [enter the exact Python version]
-Operating system: [enter the operating system and version]
-Execution environment: [enter CPU or GPU and relevant device information]
+Python version: 3.11.14
+Python distribution: Anaconda
+Conda environment: base
+Python architecture: 64-bit
+Operating-system identifier reported by Python: Windows 10 (10.0.26200)
+Machine architecture: AMD64
+Processor: Intel64 Family 6 Model 154 Stepping 3, GenuineIntel
+Logical CPU count: 20
+Execution environment: CPU-only
+TensorFlow version: 2.16.1
+Physical CPU devices detected by TensorFlow: 1
+Physical GPU devices detected by TensorFlow: 0
+CUDA-enabled TensorFlow build: False
+ROCm-enabled TensorFlow build: False
 ```
 
-The package versions can be obtained from the original environment using:
+TensorFlow identified the CPU device as:
+
+```text
+/physical_device:CPU:0
+```
+
+The corresponding concise execution-environment description is:
+
+```text
+Execution environment: CPU-only; TensorFlow 2.16.1 detected no physical GPU devices; processor: Intel64 Family 6 Model 154 Stepping 3, GenuineIntel; 20 logical CPU threads.
+```
+
+The installed Python and package versions can be checked using:
 
 ```bash
 python --version
 python -m pip show numpy pandas scipy matplotlib tensorflow
 ```
 
-Because TensorFlow and SciPy behaviour can vary across versions, the closest numerical reproduction is expected when the archived Python and package versions are used.
+Because TensorFlow and SciPy behaviour can vary across versions, the closest numerical reproduction is expected when Python 3.11.14 and the package versions pinned in `requirements.txt` are used.
 
 The repository programs are standard Python `.py` files. Jupyter Notebook or JupyterLab is not required.
 
@@ -788,16 +819,17 @@ Exact neural-network results may nevertheless vary because of:
 
 For the closest reproduction:
 
-1. Use the exact archived Python and package versions.
-2. Use the supplied Sudoku files without changing the training/test partition.
-3. Preserve the fixed random seed.
-4. Keep checkpoints from different experimental conditions separate.
-5. Follow the checkpoint-loading and puzzle-order procedures exactly.
-6. Continue the 10-trial training increments as one continuing training sequence.
-7. Disable learning and exploration during held-out evaluation.
-8. Use the archived analysis-input files when reproducing the manuscript’s statistical tables and figures.
+1. Use Python 3.11.14 and the exact package versions pinned in `requirements.txt`.
+2. Use a 64-bit Anaconda Python environment on an AMD64 Windows system.
+3. Use CPU-only TensorFlow execution. The recorded TensorFlow 2.16.1 installation detected one physical CPU device and no physical GPU devices.
+4. Use the supplied Sudoku files without changing the training/test partition.
+5. Preserve the fixed random seed.
+6. Keep checkpoints from different experimental conditions separate.
+7. Follow the checkpoint-loading and puzzle-order procedures exactly.
+8. Continue the 10-trial training increments as one continuing training sequence.
+9. Disable learning and exploration during held-out evaluation.
+10. Use the archived analysis-input files when reproducing the manuscript’s statistical tables and figures.
 
 The analysis-input files provide the direct numerical basis for the reported analyses.
 
 Re-running neural-network training evaluates procedural reproducibility but may not produce bit-for-bit identical learning trajectories on a different software or hardware environment.
-
