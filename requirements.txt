@@ -1,5 +1,5 @@
-numpy
-pandas
-scipy
-matplotlib
-tensorflow
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.13.1
+matplotlib==3.9.2
+tensorflow==2.17.1
