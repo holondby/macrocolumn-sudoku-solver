@@ -4,7 +4,7 @@ This directory contains the Sudoku puzzle datasets used in the experiments repor
 
 **Learning to Search with a Simulated Cortical Macrocolumn**
 
-The puzzle files are provided to support reproduction of the learning-rate and prior-experience experiments described in the manuscript.
+The puzzle files support reproduction of the learning-rate and prior-experience experiments described in the manuscript.
 
 ## Directory Structure
 
@@ -18,29 +18,55 @@ data/
 └── test_data/
 ```
 
-## Inkala_data/
+## `Inkala_data/`
 
-The `Inkala_data/` directory contains the difficult Sudoku puzzles used in the learning-rate comparison experiments, specifically Inkala's AI Escargot and Everest puzzles.
+The `Inkala_data/` directory contains the difficult Sudoku puzzles used in the learning-rate comparison experiments: Inkala’s AI Escargot and Everest puzzles.
 
 These puzzles were used to compare learning rates of 0.01, 0.001, and 0.0001 across the first 50 learning trials. Performance was assessed primarily by backtrack count.
 
-## training_data/
+## `training_data/`
 
 The `training_data/` directory contains the fixed 75-puzzle training set used in the prior-experience experiment.
 
-During training, the directory is supplied to the solver as the puzzle-data directory. The solver trains across the puzzles in the directory and shuffles the puzzle order after each completed trial using the fixed seeded random-number procedure described in `reproducibility_notes.md`.
+During training, this directory is supplied to the solver as the puzzle-data directory. The solver trains across the puzzles in the directory and shuffles their order after each completed trial using the fixed seeded random-number procedure described in:
 
-Training continues for 100 trials using a learning rate of 0.0001. Model checkpoints are saved at the specified evaluation trials.
+```text
+docs/reproducibility_notes.md
+```
 
-## test_data/
+Training continues for 50 trials using a learning rate of 0.0001. The manuscript reports performance at trial 0 and at the trained checkpoints corresponding to trials 10, 20, 30, 40, and 50.
+
+The 50-trial training sequence was conducted in consecutive 10-trial increments. These increments represent successive stages of one continuing training sequence rather than five independent experiments. The learned model state was carried forward from one increment to the next.
+
+## `test_data/`
 
 The `test_data/` directory contains the fixed 25-puzzle held-out test set used to evaluate whether training improves search guidance on puzzles not encountered during training.
 
-The test puzzles are evaluated with learning disabled and exploration disabled (`epsilon = 0`). The untrained trial-0 baseline is obtained from a newly initialized model. Saved training checkpoints are then evaluated on the same fixed test set.
+The trial-0 baseline is obtained from a newly initialized model before training. The models saved at trials 10, 20, 30, 40, and 50 are then evaluated on the same fixed test set with:
 
-The test set is not used for parameter updates during training.
+```text
+trials = 0
+learning disabled
+exploration disabled
+epsilon = 0
+```
 
-## puzzle Files
+The test puzzles are not used for parameter updates during training.
+
+## Fixed Training/Test Partition
+
+The original dataset contained 100 puzzles. Seventeen puzzles had a maximum selected domain size of 1 and therefore required no non-forced branching. These puzzles were excluded from the pool eligible for test-set selection and were retained in the training set.
+
+The resulting fixed partition contains:
+
+```text
+75 training puzzles
+25 held-out test puzzles
+```
+
+The puzzle files supplied in `training_data/` and `test_data/` constitute the fixed partition used for the manuscript. This partition should not be regenerated or randomly changed when reproducing the reported experiment.
+
+## Puzzle Files
 
 Each Sudoku puzzle is stored as a plain-text file and supplied directly to the solver.
 
@@ -52,16 +78,32 @@ Sudoku_nnn.txt
 
 where `nnn` identifies the puzzle number.
 
+Each file contains a 9 × 9 grid of integers. The value `0` denotes an empty Sudoku cell.
+
 The training and test sets are implemented by placing the corresponding puzzle files in separate directories and supplying the appropriate directory to the solver for training or evaluation.
 
-Puzzle files use `0` to denote an empty Sudoku cell.
+## Notes on Reproducibility
 
-## notes on reproducibility
+Use the supplied puzzle files without changing the fixed training/test partition.
 
-The training and test puzzle sets supplied in this directory are the fixed datasets used for the reported prior-experience experiment. They should not be randomly repartitioned when reproducing the manuscript results.
+When continuing training:
 
-For practical convenience, learning runs were conducted in consecutive 10-trial increments rather than as a single uninterrupted run. These increments represent successive stages of the same learning procedure, not independent 10-trial experiments. The learned model state was carried forward from one increment to the next, so later trials reflect continued learning from earlier trials.
+* retain the latest checkpoint from the same experimental condition;
+* do not restart the model between 10-trial increments;
+* do not reuse checkpoints from a different learning-rate condition; and
+* keep checkpoints from different experimental conditions separate.
 
-The data files in this directory should be used together with the source code, experiment scripts, and `reproducibility_notes.md` provided elsewhere in the repository.
+When evaluating a particular trained checkpoint, ensure that the intended checkpoint is the model loaded by the solver.
 
-To reproduce the manuscript experiments, use the supplied puzzle files and preserve the fixed training and test datasets.
+The data files in this directory should be used together with:
+
+```text
+src/macrocolumn_solver.py
+scripts/run_macrocolumn_solver.py
+docs/reproducibility_notes.md
+results/analysis_inputs/
+```
+
+The numerical files in `results/analysis_inputs/` contain the manually transcribed backtrack counts used for the reported statistical analyses, tables, and figures.
+
+To reproduce the manuscript experiments, preserve the supplied datasets, fixed random seed, checkpoint sequence, and evaluation settings.
