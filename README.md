@@ -259,7 +259,7 @@ docs/reproducibility_notes.md
 
 ```text
 Version: 1.0.1
-DOI: To be added after Zenodo archival
+DOI: 10.5281/zenodo.21383624
 ```
 
 The final repository release should be archived through Zenodo. The resulting DOI should then be added to this README, `CITATION.cff`, and the manuscript’s Data and Code Availability statement.
